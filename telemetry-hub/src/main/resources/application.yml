@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: telemetry-hub
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    url: jdbc:oracle:thin:@//${ORACLE_HOST:localhost}:${ORACLE_PORT:1521}/${ORACLE_SERVICE:telemetry}
+    username: ${ORACLE_USER:telemetry}
+    password: ${ORACLE_PASS:telemetry}
+  flyway:
+    enabled: true
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:9092}
+
+server:
+  port: 8082
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
