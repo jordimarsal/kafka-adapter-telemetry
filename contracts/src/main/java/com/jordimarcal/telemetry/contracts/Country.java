@@ -1,5 +1,7 @@
 package com.jordimarcal.telemetry.contracts;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
@@ -7,10 +9,11 @@ import java.util.Set;
 /**
  * Country where an adapter operates. Only the four countries of the domain are allowed.
  */
-public record Country(String code) {
+public record Country(@JsonValue String code) {
 
     public static final Set<String> ALLOWED = Set.of("ES", "UK", "DE", "BR");
 
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public Country {
         Objects.requireNonNull(code, "country is required");
         code = code.strip().toUpperCase(Locale.ROOT);

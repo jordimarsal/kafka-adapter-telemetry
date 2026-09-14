@@ -1,5 +1,7 @@
 package com.jordimarcal.telemetry.contracts;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -8,10 +10,11 @@ import java.util.regex.Pattern;
  * 3 to 40 chars. Constructors fail fast; {@link #parse(String)} is the
  * boundary-friendly factory returning a {@link Result}.
  */
-public record AdapterId(String value) {
+public record AdapterId(@JsonValue String value) {
 
     private static final Pattern SHAPE = Pattern.compile("[a-z0-9][a-z0-9-]{2,39}");
 
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public AdapterId {
         Objects.requireNonNull(value, "adapterId is required");
         value = value.strip();

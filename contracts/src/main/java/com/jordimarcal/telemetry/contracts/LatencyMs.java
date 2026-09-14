@@ -1,16 +1,19 @@
 package com.jordimarcal.telemetry.contracts;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Objects;
 
 /**
  * Observed latency of an adapter call, in milliseconds. Invariant: 0..60_000.
  * Behaviour, not bare data: {@link #isSlow()} encodes what "slow" means in this domain.
  */
-public record LatencyMs(int value) {
+public record LatencyMs(@JsonValue int value) {
 
     private static final int MAX = 60_000;
     private static final int SLOW_THRESHOLD = 1_000;
 
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public LatencyMs {
         Objects.requireNonNull(value, "latencyMs is required");
         if (value < 0 || value > MAX) {
