@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: adapter-gateway
+  threads:
+    virtual:
+      enabled: true
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+
+server:
+  port: 8081
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+telemetry:
+  demo-adapters: gateway-es-1, gateway-uk-2, gateway-de-3, gateway-br-4
