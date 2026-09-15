@@ -8,3 +8,5 @@ dependency-reduced-pom.xml
 .flattened-pom.xml
 .superpowers/
 AGENTS.md
+dashboard/node_modules/
+dashboard/dist/
