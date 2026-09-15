@@ -16,6 +16,8 @@ public final class PublishTelemetryUseCase {
     private static final List<String> DEMO_ADAPTERS =
             List.of("gateway-es-1", "gateway-uk-2", "gateway-de-3", "gateway-br-4");
 
+    private static final long DEMO_SEED = 20260914L;
+
     private final TelemetryPublisher publisher;
     private final ObjectMapper json;
     private final Sleeper sleeper;
@@ -32,7 +34,7 @@ public final class PublishTelemetryUseCase {
 
     public SimulationReport simulate(TrafficProfile profile) {
         TrafficGenerator generator =
-                new TrafficGenerator(profile, System.nanoTime(), DEMO_ADAPTERS, json::writeValueAsString);
+                new TrafficGenerator(profile, DEMO_SEED, DEMO_ADAPTERS, json::writeValueAsString);
         List<com.jordimarcal.telemetry.gateway.domain.PlannedMessage> plan = generator.generate(Instant.now());
 
         int published = 0;
