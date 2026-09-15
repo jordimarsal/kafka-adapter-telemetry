@@ -21,20 +21,23 @@ public final class ProcessTelemetryUseCase {
     private final HealthRepository healthRepository;
     private final AlertStore alertStore;
     private final AlertPublisher alertPublisher;
+    private final TelemetryTap tap;
 
     public ProcessTelemetryUseCase(
             TelemetryStore telemetryStore, HealthRepository healthRepository, AlertStore alertStore,
-            AlertPublisher alertPublisher) {
+            AlertPublisher alertPublisher, TelemetryTap tap) {
         this.telemetryStore = telemetryStore;
         this.healthRepository = healthRepository;
         this.alertStore = alertStore;
         this.alertPublisher = alertPublisher;
+        this.tap = tap;
     }
 
     public void process(TelemetryEvent event) {
         switch (telemetryStore.append(event)) {
             case Result.Err(var duplicate) -> {
                 log.debug("duplicate telemetry {} ignored", duplicate.eventId());
+                tap.onDuplicate(event);
                 return;
             }
             case Result.Ok(var ignored) -> { }
@@ -43,12 +46,14 @@ public final class ProcessTelemetryUseCase {
         AdapterHealth current = healthRepository.find(event.adapterId());
         HealthEffect effect = current.observe(event);
         healthRepository.save(effect.next());
+        tap.onProcessed(event);
         log.info("telemetry processed adapter={} status={} consecutiveDown={}",
                 event.adapterId(), event.status(), effect.next().consecutiveDown());
 
         effect.alertToPublish().ifPresent(alert -> {
             alertStore.record(alert);
             alertPublisher.publish(alert);
+            tap.onAlert(alert);
             log.warn("alert raised adapter={} reason={}", alert.adapterId(), alert.reason());
         });
     }

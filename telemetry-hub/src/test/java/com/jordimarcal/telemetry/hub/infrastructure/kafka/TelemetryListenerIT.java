@@ -12,6 +12,7 @@ import com.jordimarcal.telemetry.contracts.TopicNames;
 import com.jordimarcal.telemetry.hub.application.AlertStore;
 import com.jordimarcal.telemetry.hub.application.HealthRepository;
 import com.jordimarcal.telemetry.hub.application.TelemetryStore;
+import com.jordimarcal.telemetry.hub.application.TelemetryTap;
 import com.jordimarcal.telemetry.hub.domain.AdapterHealth;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -171,6 +172,24 @@ class TelemetryListenerIT {
         @Bean
         InMemoryAlertStore inMemoryAlertStore() {
             return new InMemoryAlertStore();
+        }
+
+        @Bean
+        TelemetryTap telemetryTap() {
+            // no-op tap: this wiring test asserts pipeline behaviour, not the metrics stream
+            return new TelemetryTap() {
+                @Override
+                public void onProcessed(TelemetryEvent event) {
+                }
+
+                @Override
+                public void onDuplicate(TelemetryEvent event) {
+                }
+
+                @Override
+                public void onAlert(AlertEvent alert) {
+                }
+            };
         }
     }
 

@@ -5,6 +5,7 @@ import com.jordimarcal.telemetry.hub.application.AlertPublisher;
 import com.jordimarcal.telemetry.hub.application.HealthRepository;
 import com.jordimarcal.telemetry.hub.application.ProcessTelemetryUseCase;
 import com.jordimarcal.telemetry.hub.application.TelemetryStore;
+import com.jordimarcal.telemetry.hub.application.TelemetryTap;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,7 +19,7 @@ public class UseCaseConfig {
     @Bean
     ProcessTelemetryUseCase processTelemetryUseCase(
             TelemetryStore telemetryStore, HealthRepository healthRepository, AlertStore alertStore,
-            AlertPublisher alertPublisher) {
-        return new ProcessTelemetryUseCase(telemetryStore, healthRepository, alertStore, alertPublisher);
+            AlertPublisher alertPublisher, TelemetryTap tap) {
+        return new ProcessTelemetryUseCase(telemetryStore, healthRepository, alertStore, alertPublisher, tap);
     }
 }

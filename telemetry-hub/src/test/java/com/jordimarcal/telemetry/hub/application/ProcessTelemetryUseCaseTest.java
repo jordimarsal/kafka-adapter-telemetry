@@ -68,15 +68,38 @@ class ProcessTelemetryUseCaseTest {
         }
     }
 
+    static final class RecordingTap implements TelemetryTap {
+        final List<TelemetryEvent> processed = new ArrayList<>();
+        final List<TelemetryEvent> duplicates = new ArrayList<>();
+        final List<AlertEvent> alerts = new ArrayList<>();
+
+        @Override
+        public void onProcessed(TelemetryEvent event) {
+            processed.add(event);
+        }
+
+        @Override
+        public void onDuplicate(TelemetryEvent event) {
+            duplicates.add(event);
+        }
+
+        @Override
+        public void onAlert(AlertEvent alert) {
+            alerts.add(alert);
+        }
+    }
+
     private record Fakes(InMemoryTelemetryStore store, InMemoryHealthRepository health, InMemoryAlerts alerts,
-                         ProcessTelemetryUseCase useCase) {
+                         RecordingTap tap, ProcessTelemetryUseCase useCase) {
     }
 
     private static Fakes fakes() {
         var store = new InMemoryTelemetryStore();
         var health = new InMemoryHealthRepository();
         var alerts = new InMemoryAlerts();
-        return new Fakes(store, health, alerts, new ProcessTelemetryUseCase(store, health, alerts, alerts));
+        var tap = new RecordingTap();
+        return new Fakes(store, health, alerts, tap,
+                new ProcessTelemetryUseCase(store, health, alerts, alerts, tap));
     }
 
     private static TelemetryEvent event(Status status, UUID eventId) {
@@ -128,6 +151,27 @@ class ProcessTelemetryUseCaseTest {
         assertEquals(1, f.alerts().recorded.size());
         assertEquals(third, f.alerts().recorded.getFirst().triggerEventId(),
                 "the alert must remember the event that crossed the threshold");
+    }
+
+    @Test
+    void processedAndDuplicateEventsReachTheTap() {
+        Fakes f = fakes();
+        UUID id = UUID.randomUUID();
+        f.useCase().process(event(Status.UP, id));
+        f.useCase().process(event(Status.UP, id));
+        assertEquals(1, f.tap().processed.size());
+        assertEquals(1, f.tap().duplicates.size());
+        assertEquals(id, f.tap().duplicates.getFirst().eventId());
+    }
+
+    @Test
+    void raisedAlertsReachTheTap() {
+        Fakes f = fakes();
+        for (int i = 0; i < 3; i++) {
+            f.useCase().process(event(Status.DOWN, UUID.randomUUID()));
+        }
+        assertEquals(3, f.tap().processed.size());
+        assertEquals(1, f.tap().alerts.size());
     }
 
     @Test
