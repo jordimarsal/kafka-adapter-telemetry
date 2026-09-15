@@ -8,7 +8,7 @@ describe('throughputOption', () => {
     series = foldTelemetry(series, 10, 0)
     series = foldTelemetry(series, 10, 2000)
     const option = throughputOption(series)
-    const data = option.series[0].data as number[]
+    const data = (option.series as { data: number[] }[])[0].data
     expect(data).toEqual([1, 0, 1])
   })
 
@@ -17,7 +17,7 @@ describe('throughputOption', () => {
     series = foldTelemetry(series, 10, 0)
     series = markReset(series, 5000)
     const option = throughputOption(series)
-    const marks = option.series[0].markLine.data as unknown[]
+    const marks = (option.series as { markLine: { data: unknown[] } }[])[0].markLine.data
     expect(marks).toHaveLength(1)
   })
 })
@@ -29,8 +29,9 @@ describe('latencyOption', () => {
       series = foldTelemetry(series, i * 10, i * 1000)
     }
     const option = latencyOption(series, 60, 60)
-    expect(option.series[0].data).toHaveLength(60)
-    const marks = option.series[0].markLine.data as { yAxis: number }[]
+    const first = (option.series as { data: unknown; markLine: { data: { yAxis: number }[] } }[])[0]
+    expect(first.data).toHaveLength(60)
+    const marks = first.markLine.data
     expect(marks).toHaveLength(2)
     expect(marks[0].yAxis).toBeGreaterThan(0)
   })

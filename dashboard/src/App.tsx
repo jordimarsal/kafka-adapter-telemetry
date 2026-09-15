@@ -1,4 +1,6 @@
+import { LatencyChart } from './components/LatencyChart'
 import { Panel } from './components/Panel'
+import { ThroughputChart } from './components/ThroughputChart'
 
 export default function App() {
   return (
@@ -9,8 +11,8 @@ export default function App() {
         </div>
         <Panel label="pipeline">—</Panel>
         <div className="grid min-h-0 grid-rows-2 gap-3">
-          <Panel label="throughput · ev/s">—</Panel>
-          <Panel label="latency · ms">—</Panel>
+          <ThroughputChart />
+          <LatencyChart />
         </div>
         <div className="grid min-h-0 grid-rows-2 gap-3">
           <Panel label="alerts · 0">—</Panel>
