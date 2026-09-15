@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
 class PublishTelemetryUseCaseTest {
@@ -35,6 +36,34 @@ class PublishTelemetryUseCaseTest {
         assertEquals(40, report.duplicates());
         assertEquals(20, report.corrupt());
         assertEquals(2_000, sent.size());
+    }
+
+    @Test
+    void simulateOverloadReplaysTheSameEventIds() {
+        assertEquals(publishedEventIds(runOverload()), publishedEventIds(runOverload()),
+                "the same profile must replay the same event ids, otherwise replays defeat idempotency");
+    }
+
+    private List<String> runOverload() {
+        List<String> payloads = new ArrayList<>();
+        PublishTelemetryUseCase run = new PublishTelemetryUseCase(
+                (key, payload) -> payloads.add(payload), new ObjectMapper(), ms -> {});
+        run.simulate(TrafficProfile.OVERLOAD);
+        return payloads;
+    }
+
+    private static List<String> publishedEventIds(List<String> payloads) {
+        ObjectMapper json = new ObjectMapper();
+        return payloads.stream()
+                .map(payload -> {
+                    try {
+                        return json.readTree(payload).get("eventId").asString();
+                    } catch (JacksonException corruptPayload) {
+                        return "corrupt";
+                    }
+                })
+                .sorted()
+                .toList();
     }
 
     @Test
