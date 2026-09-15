@@ -19,6 +19,15 @@ describe('foldTelemetry', () => {
     expect(s.buckets).toHaveLength(120)
     expect(s.buckets[0].second).toBe(30)
   })
+
+  test('freezes samples at the cap while count keeps counting', () => {
+    let s = emptySeries()
+    for (let i = 0; i < 70; i++) {
+      s = foldTelemetry(s, 100 + i, 1000)
+    }
+    expect(s.buckets[0].count).toBe(70)
+    expect(s.buckets[0].samples).toHaveLength(64)
+  })
 })
 
 describe('percentile', () => {

@@ -26,7 +26,14 @@ export function connectStream(
   source.onerror = () => handlers.onStatus('reconnecting')
   for (const name of EVENT_NAMES) {
     source.addEventListener(name, event => {
-      const parsed = JSON.parse(event.data) as { seq: number }
+      let parsed: { seq: number }
+      try {
+        parsed = JSON.parse(event.data) as { seq: number }
+      } catch (parseError) {
+        // a frame we cannot read must not poison seq tracking; drop it loudly
+        console.warn(`dropping malformed ${name} frame`, parseError)
+        return
+      }
       if (lastSeq > 0 && parsed.seq > lastSeq + 1) handlers.onGap()
       if (parsed.seq > lastSeq) lastSeq = parsed.seq
       handlers.onFrame({ kind: name, ...parsed } as StreamFrame)
