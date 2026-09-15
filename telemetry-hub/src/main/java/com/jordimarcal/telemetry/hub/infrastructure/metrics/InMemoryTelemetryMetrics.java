@@ -62,9 +62,7 @@ public final class InMemoryTelemetryMetrics implements TelemetryTap {
     }
 
     public Frame.HeartbeatFrame heartbeat() {
-        var frame = new Frame.HeartbeatFrame(seq.incrementAndGet(), totals());
-        publish(frame);
-        return frame;
+        return new Frame.HeartbeatFrame(seq.get(), totals());
     }
 
     public Totals totals() {

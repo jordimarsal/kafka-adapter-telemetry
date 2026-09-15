@@ -39,9 +39,19 @@ class InMemoryTelemetryMetricsTest {
         metrics.onDuplicate(event(Status.DOWN));
         metrics.onDlt("broken");
         metrics.onAlert(AlertEvent.forTrigger(UUID.randomUUID(), new AdapterId("gateway-es-1"), "3 DOWN", T0));
-        metrics.heartbeat();
 
-        assertEquals(List.of(1L, 2L, 3L, 4L, 5L), seqs);
+        assertEquals(List.of(1L, 2L, 3L, 4L), seqs);
+    }
+
+    @Test
+    void heartbeatConstructsCurrentTotalsWithoutAdvancingSeq() {
+        var metrics = new InMemoryTelemetryMetrics();
+        metrics.onProcessed(event(Status.UP));
+        metrics.onDlt("broken");
+        var frame = metrics.heartbeat();
+        assertEquals(2L, frame.seq());
+        assertEquals(new InMemoryTelemetryMetrics.Totals(0, 0, 1), frame.totals());
+        assertEquals(2L, metrics.seq());
     }
 
     @Test
