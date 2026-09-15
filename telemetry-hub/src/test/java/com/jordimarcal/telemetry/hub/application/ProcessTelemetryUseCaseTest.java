@@ -117,6 +117,20 @@ class ProcessTelemetryUseCaseTest {
     }
 
     @Test
+    void alertCarriesTheTriggeringEventId() {
+        Fakes f = fakes();
+        UUID first = UUID.randomUUID();
+        UUID second = UUID.randomUUID();
+        UUID third = UUID.randomUUID();
+        f.useCase().process(event(Status.DOWN, first));
+        f.useCase().process(event(Status.DOWN, second));
+        f.useCase().process(event(Status.DOWN, third));
+        assertEquals(1, f.alerts().recorded.size());
+        assertEquals(third, f.alerts().recorded.getFirst().triggerEventId(),
+                "the alert must remember the event that crossed the threshold");
+    }
+
+    @Test
     void upClosesAlertSoNextStreakAlertsAgain() {
         Fakes f = fakes();
         for (int i = 0; i < 3; i++) {

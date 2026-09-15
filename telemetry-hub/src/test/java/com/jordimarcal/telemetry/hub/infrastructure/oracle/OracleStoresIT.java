@@ -1,6 +1,8 @@
 package com.jordimarcal.telemetry.hub.infrastructure.oracle;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jordimarcal.telemetry.contracts.AdapterId;
@@ -19,6 +21,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -110,6 +113,30 @@ class OracleStoresIT {
                 "SELECT COUNT(*) FROM adapter_alert WHERE alert_id = ?",
                 Integer.class, OracleTelemetryStore.uuidBytes(alert.alertId()));
         assertEquals(1, rows);
+    }
+
+    @Test
+    void alertStoresTheTriggerEventId() {
+        UUID trigger = UUID.randomUUID();
+        AlertEvent alert = AlertEvent.forTrigger(trigger, new AdapterId("it-adapter-3"), "3 DOWN", Instant.now());
+        alertStore.record(alert);
+        byte[] stored = jdbc.queryForObject(
+                "SELECT trigger_event_id FROM adapter_alert WHERE alert_id = ?",
+                byte[].class, OracleTelemetryStore.uuidBytes(alert.alertId()));
+        assertArrayEquals(OracleTelemetryStore.uuidBytes(trigger), stored,
+                "the persisted alert must carry the event that triggered it");
+    }
+
+    @Test
+    void triggerEventIdIsUniqueAcrossAlerts() {
+        UUID trigger = UUID.randomUUID();
+        alertStore.record(AlertEvent.forTrigger(trigger, new AdapterId("it-adapter-4"), "3 DOWN", Instant.now()));
+        assertThrows(DataIntegrityViolationException.class, () -> jdbc.update(
+                "INSERT INTO adapter_alert (alert_id, adapter_id, reason, raised_at, trigger_event_id) "
+                        + "VALUES (?, ?, ?, SYSTIMESTAMP, ?)",
+                OracleTelemetryStore.uuidBytes(UUID.randomUUID()), "it-adapter-4", "3 DOWN",
+                OracleTelemetryStore.uuidBytes(trigger)),
+                "a second alert for the same trigger must be rejected by the UNIQUE constraint");
     }
 
     private static TelemetryEvent event(Status status, UUID eventId) {

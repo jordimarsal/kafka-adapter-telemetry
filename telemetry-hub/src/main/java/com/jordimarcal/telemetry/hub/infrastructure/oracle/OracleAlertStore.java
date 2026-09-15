@@ -15,8 +15,8 @@ public class OracleAlertStore implements AlertStore {
     private static final Logger log = LoggerFactory.getLogger(OracleAlertStore.class);
 
     private static final String INSERT = """
-            INSERT INTO adapter_alert (alert_id, adapter_id, reason, raised_at)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO adapter_alert (alert_id, adapter_id, reason, raised_at, trigger_event_id)
+            VALUES (?, ?, ?, ?, ?)
             """;
 
     private final JdbcTemplate jdbc;
@@ -29,7 +29,8 @@ public class OracleAlertStore implements AlertStore {
     public void record(AlertEvent alert) {
         try {
             jdbc.update(INSERT, OracleTelemetryStore.uuidBytes(alert.alertId()), alert.adapterId().value(),
-                    alert.reason(), Timestamp.from(alert.raisedAt()));
+                    alert.reason(), Timestamp.from(alert.raisedAt()),
+                    OracleTelemetryStore.uuidBytes(alert.triggerEventId()));
         } catch (DuplicateKeyException e) {
             log.debug("alert {} already recorded (replay)", alert.alertId());
         }
