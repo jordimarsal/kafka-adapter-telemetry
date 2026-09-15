@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react'
-import { expect, test } from 'vitest'
+import { expect, test, vi } from 'vitest'
 import App from './App'
+
+vi.mock('./app/lifecycle', () => ({ startDashboard: () => () => {} }))
 
 test('renders the mission control grid regions', () => {
   render(<App />)
