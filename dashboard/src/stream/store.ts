@@ -131,6 +131,12 @@ export class DashboardStore {
 
 export const store = new DashboardStore()
 
+/**
+ * Subscribes a component to the dashboard store.
+ * The selector must return primitives or stable references (arrays/objects
+ * held by the state, not freshly-built ones) or the component re-renders on
+ * every notification.
+ */
 export function useDashboard<T>(selector: (state: DashboardState) => T): T {
   return useSyncExternalStore(store.subscribe, () => selector(store.getState()))
 }
