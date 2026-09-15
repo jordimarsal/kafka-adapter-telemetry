@@ -34,7 +34,11 @@ this problem: idempotent upsert by `event_id` makes replay harmless.
 - Kafka is not the source of truth: Oracle is. Anyone treating
   `adapter.alerts.v1` as a guaranteed exactly-once feed will observe rare loss or
   duplication on crashes — acceptable for alert notifications, unacceptable for
-  billing-style events.
+  billing-style events. The same non-atomicity exists one step earlier:
+  `ProcessTelemetryUseCase` appends the telemetry event and saves the health
+  transition as two separate writes, so a crash between them followed by redelivery
+  short-circuits on the duplicate check and skips the health update — the same
+  outbox-style evolution covers it.
 - The relay logic (retry, ordering, cleanup of published outbox rows) simply does
   not exist and therefore cannot fail — or help — yet.
 

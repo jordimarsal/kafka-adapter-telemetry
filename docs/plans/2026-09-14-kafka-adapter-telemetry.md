@@ -22,7 +22,7 @@
 | 6 · AdapterHealth (domini pur) | ✅ | `52505b3` |
 | 7 · Hub ports + Oracle idempotent | ✅ | `f12d94a` |
 | 8 · Hub consumer + DLT + alertes + API lectura | ✅ (revisat) | `7f767ca` |
-| 9 · README + ADRs + demo e2e | ⏳ pendent | — |
+| 9 · README + ADRs + demo e2e | ✅ (revisat) | `de48ce5` + `c224712` + `9c54259` + docs (aquest commit) |
 
 Deltas d'implementació de Task 8 (detalls a `.superpowers/sdd/2026-09-14-kafka-adapter-telemetry/task-8-report.md`):
 

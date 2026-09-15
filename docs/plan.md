@@ -158,7 +158,7 @@ Cada perfil és un Value Object (`TrafficProfile`) amb factory que retorna
 
 Pla d'implementació detallat (tasques petites, TDD): `docs/plans/2026-09-14-kafka-adapter-telemetry.md`.
 
-> **Estat (2026-09-14):** Fases 0–4 fetes i revisades (últim commit `7f767ca`; detall i deltas a l'estat del pla d'implementació). Pendent: Fase 5 — README, ADRs i demo e2e verificada. Recordar afegir `spring-boot-starter-kafka` al gateway abans de la demo.
+> **Estat (2026-09-15):** Totes les fases fetes i revisades (Task 9 inclòs; últim commit de codi `9c54259`, tancat amb el commit de docs). Demo e2e verificada des de zero (`docker compose down -v` → `up --wait` → `mvn package` → `demo.sh`): idempotència (recompte estable en re-executar `overload`), 1 alerta per episodi de 3 DOWN i JSON corrupte a la DLT comprovats a mà. Detall i deltas a l'estat del pla d'implementació.
 
 ---
 

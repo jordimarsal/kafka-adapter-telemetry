@@ -108,6 +108,11 @@ Unknown profile → `400` with the list of valid ones.
    SELECT COUNT(*) FROM telemetry_event;
    ```
 
+   Don't be surprised by the arithmetic: the full demo generates 2,460 events
+   (20 + 500 + 1,940) but Oracle ends up with 2,365 distinct rows — under the shared
+   demo seed, ~95 event ids collide across profiles and the primary key deduplicates
+   them. Determinism is what makes replays safe, not what makes counts add up.
+
 2. **Alerts** — every time an adapter accumulates 3 consecutive `DOWN` observations
    (an UP resets both the streak and the active alert), exactly one alert row and one
    `AlertEvent` appear. Alert ids are derived from the triggering event id, so
