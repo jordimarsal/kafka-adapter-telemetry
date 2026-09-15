@@ -28,15 +28,20 @@ export function DemoControl() {
     setBusy(true)
     abort.current = false
     setError(null)
-    const result = await runFullDemo({
-      simulate: profile => run(profile).then(() => undefined),
-      snapshot: fetchSnapshot,
-      onPhase: (name, index, total) => store.setPhase({ name, index, total }),
-      shouldStop: () => abort.current,
-    })
-    store.setPhase(null)
-    if (result === 'aborted') setError('demo aborted')
-    setBusy(false)
+    try {
+      const result = await runFullDemo({
+        simulate: profile => run(profile).then(() => undefined),
+        snapshot: fetchSnapshot,
+        onPhase: (name, index, total) => store.setPhase({ name, index, total }),
+        shouldStop: () => abort.current,
+      })
+      if (result === 'aborted') setError('demo aborted')
+    } catch (cause) {
+      setError(String(cause))
+    } finally {
+      store.setPhase(null)
+      setBusy(false)
+    }
   }
 
   return (
