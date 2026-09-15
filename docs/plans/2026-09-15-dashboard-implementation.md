@@ -1527,12 +1527,14 @@ export class DashboardStore {
       return
     }
     if (frame.seq <= this.state.seq) return
-    const patch: Partial<DashboardState> = { seq: frame.seq }
+    const gap = frame.seq > this.state.seq + 1
+    let series = this.state.series
+    if (gap) series = markReset(series, Date.now())
+    const patch: Partial<DashboardState> = { seq: frame.seq, series }
     switch (frame.kind) {
       case 'telemetry':
         patch.sessionEvents = this.state.sessionEvents + 1
-        patch.series = foldTelemetry(this.state.series, frame.latencyMs, Date.now())
-        if (frame.seq > this.state.seq + 1) patch.series = markReset(patch.series, Date.now())
+        patch.series = foldTelemetry(series, frame.latencyMs, Date.now())
         break
       case 'alert': {
         const item: AlertItem = { seq: frame.seq, alertId: frame.alertId, adapterId: frame.adapterId, reason: frame.reason, raisedAt: frame.raisedAt }
@@ -1845,7 +1847,7 @@ git commit -m "feat: run-full-demo state machine with seq-stability wait"
 
 **Interfaces:**
 - Consumes: `Series`, `histogram`, `latenciesWithin`, `percentile` (Task 10); `store`, `useDashboard` (Task 11).
-- Produces: `throughputOption(series)`, `latencyOption(series, windowSeconds)` (pure, tested) and two live components rendering into `Panel`s with the SVG renderer.
+- Produces: `throughputOption(series)`, `latencyOption(series, windowSeconds, nowSecond = Math.floor(Date.now()/1000))` (pure, tested — pass `nowSecond` in tests) and two live components rendering into `Panel`s with the SVG renderer.
 
 - [ ] **Step 1: Write the failing test**:
 
@@ -1880,7 +1882,7 @@ describe('latencyOption', () => {
     for (let i = 0; i < 10; i++) {
       series = foldTelemetry(series, i * 10, i * 1000)
     }
-    const option = latencyOption(series, 60)
+    const option = latencyOption(series, 60, 60)
     expect(option.series[0].data).toHaveLength(60)
     const marks = option.series[0].markLine.data as { yAxis: number }[]
     expect(marks).toHaveLength(2)
@@ -1932,8 +1934,8 @@ export function throughputOption(series: Series): EChartsOption {
   }
 }
 
-export function latencyOption(series: Series, windowSeconds: number): EChartsOption {
-  const fromSecond = Math.floor(Date.now() / 1000) - windowSeconds
+export function latencyOption(series: Series, windowSeconds: number, nowSecond = Math.floor(Date.now() / 1000)): EChartsOption {
+  const fromSecond = nowSecond - windowSeconds
   const samples = latenciesWithin(series, fromSecond)
   const bins = histogram(series, fromSecond)
   return {
@@ -2150,8 +2152,8 @@ export function startDashboard(): () => void {
   const close = connectStream({
     onFrame: frame => store.apply(frame),
     onStatus: status => store.setStatus(status),
+    // store.apply already marks the series reset on a seq gap; here we only resync totals
     onGap: () => {
-      store.markReset()
       void refreshSnapshot()
     },
   })
