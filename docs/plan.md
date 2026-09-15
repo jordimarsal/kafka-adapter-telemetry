@@ -158,6 +158,8 @@ Cada perfil és un Value Object (`TrafficProfile`) amb factory que retorna
 
 Pla d'implementació detallat (tasques petites, TDD): `docs/plans/2026-09-14-kafka-adapter-telemetry.md`.
 
+> **Estat (2026-09-14):** Fases 0–4 fetes i revisades (últim commit `7f767ca`; detall i deltas a l'estat del pla d'implementació). Pendent: Fase 5 — README, ADRs i demo e2e verificada. Recordar afegir `spring-boot-starter-kafka` al gateway abans de la demo.
+
 ---
 
 ## 11. ADRs previstos

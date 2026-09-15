@@ -10,6 +10,28 @@
 
 **Spec:** `docs/plan.md` (pla d'alt nivell aprovat).
 
+## Status (2026-09-14)
+
+| Task | Estat | Commit |
+|---|---|---|
+| 0 · Scaffold Maven + Compose | ✅ | `4432da7` |
+| 1+2 · Result + VOs | ✅ | `c043363` |
+| 3 · Events + TopicNames | ✅ | `4d1a7bf` |
+| 4 · TrafficProfile + TrafficGenerator | ✅ | `a555e99` |
+| 5 · Gateway REST + producer + simulador | ✅ | `25bdaab` |
+| 6 · AdapterHealth (domini pur) | ✅ | `52505b3` |
+| 7 · Hub ports + Oracle idempotent | ✅ | `f12d94a` |
+| 8 · Hub consumer + DLT + alertes + API lectura | ✅ (revisat) | `7f767ca` |
+| 9 · README + ADRs + demo e2e | ⏳ pendent | — |
+
+Deltas d'implementació de Task 8 (detalls a `.superpowers/sdd/2026-09-14-kafka-adapter-telemetry/task-8-report.md`):
+
+- Hub pom: `spring-boot-starter-kafka` (l'autoconfig de Kafka a Boot 4 és modular) + `jackson-datatype-jsr310` (el `JsonDeserializer` de spring-kafka 4.1 és Jackson 2 i sense jsr310 cap JSON validava).
+- DLT: `DeadLetterPublishingRecoverer` amb `DestinationResolver` explícit cap a `adapter.telemetry.v1.dlt` (els sufixos per defecte de spring-kafka 4.1 no produeixen el topic del contracte).
+- `infrastructure/config/KafkaProducerConfig.java` (`alertTemplate` amb dates ISO) i `UseCaseConfig.java` (composition root del cas d'ús): fitxers no previstos al pla.
+- Surefire: `TelemetryListenerIT` corre al `mvn test` per defecte (EmbeddedKafka, sense Docker); `OracleStoresIT` segueix exclòs per naming + `@Tag("integration")`.
+- ⚠️ Pendent per a Task 9: `adapter-gateway` necessita `spring-boot-starter-kafka` al pom — ara mateix el seu context complet no arrencaria (els tests de slice no ho destapen).
+
 ## Global Constraints
 
 - Java `25` (maven.compiler.release via `<java.version>25</java.version>`); Spring Boot parent `4.1.1`.
