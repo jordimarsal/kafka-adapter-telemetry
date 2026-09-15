@@ -58,7 +58,7 @@ class PublishTelemetryUseCaseTest {
                 .map(payload -> {
                     try {
                         return json.readTree(payload).get("eventId").asString();
-                    } catch (JacksonException corruptPayload) {
+                    } catch (JacksonException _) {
                         return "corrupt";
                     }
                 })

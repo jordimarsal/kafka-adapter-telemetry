@@ -28,7 +28,7 @@ public record LatencyMs(@JsonValue int value) {
     public static Result<LatencyMs, ValidationError> parse(Integer raw) {
         try {
             return Result.ok(new LatencyMs(Objects.requireNonNull(raw, "latencyMs is required")));
-        } catch (IllegalArgumentException | NullPointerException e) {
+        } catch (IllegalArgumentException | NullPointerException _) {
             return Result.err(new ValidationError("latencyMs", "must be an integer between 0 and " + MAX));
         }
     }

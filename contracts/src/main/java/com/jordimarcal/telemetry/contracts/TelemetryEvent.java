@@ -66,7 +66,7 @@ public record TelemetryEvent(
         }
         try {
             return Result.ok(Status.valueOf(raw.strip().toUpperCase(java.util.Locale.ROOT)));
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException _) {
             return Result.err(new ValidationError("status", "must be one of UP, DEGRADED, DOWN"));
         }
     }

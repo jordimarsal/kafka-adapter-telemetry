@@ -1,6 +1,7 @@
 package com.jordimarcal.telemetry.gateway.infrastructure.api;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -8,11 +9,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.jordimarcal.telemetry.gateway.application.PublishTelemetryUseCase;
 import com.jordimarcal.telemetry.gateway.application.SimulationReport;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -27,7 +25,7 @@ class SimulatorControllerTest {
 
     @Test
     void knownProfileReturnsReport() throws Exception {
-        Mockito.when(useCase.simulate(any()))
+        when(useCase.simulate(any()))
                 .thenReturn(new SimulationReport("low", 20, 0, 0, 12));
         mvc.perform(post("/api/v1/telemetry/simulate?profile=low"))
                 .andExpect(status().isOk())

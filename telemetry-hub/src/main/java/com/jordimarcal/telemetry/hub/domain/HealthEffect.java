@@ -1,8 +1,6 @@
 package com.jordimarcal.telemetry.hub.domain;
 
-import com.jordimarcal.telemetry.contracts.AdapterId;
 import com.jordimarcal.telemetry.contracts.AlertEvent;
-import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 

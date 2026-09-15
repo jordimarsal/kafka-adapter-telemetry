@@ -1,8 +1,6 @@
 package com.jordimarcal.telemetry.gateway.domain;
 
-import com.jordimarcal.telemetry.contracts.AdapterId;
 import com.jordimarcal.telemetry.contracts.Country;
-import com.jordimarcal.telemetry.contracts.LatencyMs;
 import com.jordimarcal.telemetry.contracts.Status;
 import com.jordimarcal.telemetry.contracts.TelemetryEvent;
 import java.time.Instant;

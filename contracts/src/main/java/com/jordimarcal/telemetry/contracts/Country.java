@@ -25,7 +25,7 @@ public record Country(@JsonValue String code) {
     public static Result<Country, ValidationError> parse(String raw) {
         try {
             return Result.ok(new Country(raw));
-        } catch (IllegalArgumentException | NullPointerException e) {
+        } catch (IllegalArgumentException | NullPointerException _) {
             return Result.err(new ValidationError("country", "must be one of " + ALLOWED));
         }
     }

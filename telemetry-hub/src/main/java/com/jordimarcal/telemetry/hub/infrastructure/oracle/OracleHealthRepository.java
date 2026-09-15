@@ -42,7 +42,7 @@ public class OracleHealthRepository implements HealthRepository {
                     rs.getInt("consecutive_down"),
                     rs.getInt("alert_active") == 1,
                     rs.getTimestamp("last_seen").toInstant()), adapterId.value());
-        } catch (EmptyResultDataAccessException e) {
+        } catch (EmptyResultDataAccessException _) {
             return AdapterHealth.initial(adapterId, Instant.EPOCH);
         }
     }

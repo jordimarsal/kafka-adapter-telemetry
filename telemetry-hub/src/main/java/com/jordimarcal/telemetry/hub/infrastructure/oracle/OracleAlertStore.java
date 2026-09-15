@@ -31,7 +31,7 @@ public class OracleAlertStore implements AlertStore {
             jdbc.update(INSERT, OracleTelemetryStore.uuidBytes(alert.alertId()), alert.adapterId().value(),
                     alert.reason(), Timestamp.from(alert.raisedAt()),
                     OracleTelemetryStore.uuidBytes(alert.triggerEventId()));
-        } catch (DuplicateKeyException e) {
+        } catch (DuplicateKeyException _) {
             log.debug("alert {} already recorded (replay)", alert.alertId());
         }
     }

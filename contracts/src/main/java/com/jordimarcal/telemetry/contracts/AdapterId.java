@@ -26,7 +26,7 @@ public record AdapterId(@JsonValue String value) {
     public static Result<AdapterId, ValidationError> parse(String raw) {
         try {
             return Result.ok(new AdapterId(raw));
-        } catch (IllegalArgumentException | NullPointerException e) {
+        } catch (IllegalArgumentException | NullPointerException _) {
             return Result.err(new ValidationError("adapterId", "must match [a-z0-9][a-z0-9-]{2,39}"));
         }
     }
