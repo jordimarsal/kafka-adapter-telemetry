@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { store } from './store'
+import type { StreamFrame } from './types'
 
-const telemetry = (seq: number, latencyMs = 100) =>
+const telemetry = (seq: number, latencyMs = 100): StreamFrame =>
   ({ kind: 'telemetry', seq, eventId: `e${seq}`, adapterId: 'gw-1', status: 'UP', latencyMs, country: 'ES', occurredAt: '2026-09-15T10:00:00Z' })
 
 describe('store.apply', () => {

@@ -27,7 +27,9 @@ describe('runFullDemo', () => {
     const ran: string[] = []
     let stopped = false
     const result = await runFullDemo({
-      simulate: async profile => ran.push(profile),
+      simulate: async profile => {
+        ran.push(profile)
+      },
       snapshot: stableSnapshot(1),
       shouldStop: () => stopped,
       sleep: () => {
