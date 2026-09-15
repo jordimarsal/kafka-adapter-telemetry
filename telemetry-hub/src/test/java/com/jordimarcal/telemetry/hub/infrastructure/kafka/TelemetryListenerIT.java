@@ -1,6 +1,7 @@
 package com.jordimarcal.telemetry.hub.infrastructure.kafka;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jordimarcal.telemetry.contracts.AlertEvent;
@@ -13,6 +14,7 @@ import com.jordimarcal.telemetry.hub.application.AlertStore;
 import com.jordimarcal.telemetry.hub.application.HealthRepository;
 import com.jordimarcal.telemetry.hub.application.TelemetryStore;
 import com.jordimarcal.telemetry.hub.domain.AdapterHealth;
+import com.jordimarcal.telemetry.hub.infrastructure.metrics.InMemoryTelemetryMetrics;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
@@ -21,8 +23,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -66,6 +70,9 @@ class TelemetryListenerIT {
     @Autowired
     private InMemoryTelemetryStore store;
 
+    @Autowired
+    private InMemoryTelemetryMetrics metrics;
+
     private final JsonMapper json = JsonMapper.builder().build();
 
     @Test
@@ -87,10 +94,26 @@ class TelemetryListenerIT {
 
         try (Consumer<String, byte[]> reader = dltReader()) {
             broker.consumeFromAnEmbeddedTopic(reader, TopicNames.TELEMETRY_DLT);
-            var record = KafkaTestUtils.getSingleRecord(reader, TopicNames.TELEMETRY_DLT, TIMEOUT);
-            assertEquals(key, record.key());
-            assertEquals(broken, new String(record.value(), StandardCharsets.UTF_8));
+            var found = new AtomicReference<ConsumerRecord<String, byte[]>>();
+            Awaitility.await().atMost(TIMEOUT).untilAsserted(() -> {
+                reader.poll(Duration.ofMillis(200)).forEach(record -> {
+                    if (key.equals(record.key())) {
+                        found.set(record);
+                    }
+                });
+                assertNotNull(found.get(), "poisoned record must reach the DLT");
+            });
+            assertEquals(key, found.get().key());
+            assertEquals(broken, new String(found.get().value(), StandardCharsets.UTF_8));
         }
+    }
+
+    @Test
+    void dltObserverCountsMessagesLandingOnTheDlt() {
+        producer().send(TopicNames.TELEMETRY, "it-dlt-count", "{\"trencat");
+
+        Awaitility.await().atMost(TIMEOUT).untilAsserted(() ->
+                assertTrue(metrics.totals().dlt() >= 1, "dlt observer must count the dead letter"));
     }
 
     @Test
