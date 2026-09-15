@@ -1,1 +1,48 @@
 @import "tailwindcss";
+
+@theme {
+  --color-bg: #05070a;
+  --color-panel: #0a0e14;
+  --color-line: #1c2530;
+  --color-fg: #e6edf3;
+  --color-muted: #8b98ab;
+  --color-dim: #4d5a6d;
+  --color-up: #3ddc97;
+  --color-warn: #ffb347;
+  --color-down: #ff5470;
+  --font-mono: ui-monospace, "JetBrains Mono", "Cascadia Mono", Menlo, monospace;
+}
+
+html, body {
+  background: var(--color-bg);
+}
+
+.num {
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-fg);
+  text-shadow: 0 0 18px rgb(61 220 151 / 0.35);
+}
+
+.cap {
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--color-dim);
+}
+
+@keyframes flow {
+  to { stroke-dashoffset: -20; }
+}
+
+.flow-line {
+  animation: flow 1s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
