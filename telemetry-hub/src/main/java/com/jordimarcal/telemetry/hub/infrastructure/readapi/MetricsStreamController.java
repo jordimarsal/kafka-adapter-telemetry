@@ -9,6 +9,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -31,6 +32,7 @@ public class MetricsStreamController {
     private final InMemoryTelemetryMetrics metrics;
     private final JsonMapper json = JsonMapper.builder().build();
     private final List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
+    private final Consumer<InMemoryTelemetryMetrics.Frame> relay = this::forward;
     private final ScheduledExecutorService heartbeat = Executors.newSingleThreadScheduledExecutor(
             Thread.ofPlatform().name("sse-heartbeat").daemon(true).factory());
 
@@ -40,14 +42,14 @@ public class MetricsStreamController {
 
     @PostConstruct
     void start() {
-        metrics.addListener(this::forward);
+        metrics.addListener(relay);
         heartbeat.scheduleAtFixedRate(this::beat, HEARTBEAT_SECONDS, HEARTBEAT_SECONDS, TimeUnit.SECONDS);
     }
 
     @PreDestroy
     void stop() {
         heartbeat.shutdownNow();
-        metrics.removeListener(this::forward);
+        metrics.removeListener(relay);
         for (SseEmitter emitter : emitters) {
             emitter.complete();
         }
@@ -90,9 +92,11 @@ public class MetricsStreamController {
                 synchronized (emitter) {
                     emitter.send(SseEmitter.event().name(event).data(payload, MediaType.APPLICATION_JSON));
                 }
-            } catch (IOException _) {
+            } catch (IOException e) {
+                log.debug("dropping SSE emitter after send failure", e);
                 emitters.remove(emitter);
-            } catch (RuntimeException _) {
+            } catch (RuntimeException e) {
+                log.debug("dropping SSE emitter after unexpected failure", e);
                 emitters.remove(emitter);
             }
         }

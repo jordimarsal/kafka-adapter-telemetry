@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.test.context.bean.override.mockito.MockReset;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -27,7 +28,7 @@ class MetricsStreamControllerTest {
     @Autowired
     private MockMvc mvc;
 
-    @MockitoBean
+    @MockitoBean(reset = MockReset.NONE)
     private InMemoryTelemetryMetrics metrics;
 
     @Test
@@ -45,14 +46,14 @@ class MetricsStreamControllerTest {
 
     @Test
     void streamDeliversMetricsFramesAsNamedServerSentEvents() throws Exception {
-        ArgumentCaptor<Consumer<InMemoryTelemetryMetrics.Frame>> listener = ArgumentCaptor.forClass(Consumer.class);
-        verify(metrics).addListener(listener.capture());
+        ArgumentCaptor<Consumer<InMemoryTelemetryMetrics.Frame>> captor = ArgumentCaptor.forClass(Consumer.class);
+        verify(metrics).addListener(captor.capture());
 
         MvcResult result = mvc.perform(get("/api/v1/stream"))
                 .andExpect(request().asyncStarted())
                 .andReturn();
 
-        listener.getValue().accept(new InMemoryTelemetryMetrics.Frame.TelemetryFrame(
+        captor.getValue().accept(new InMemoryTelemetryMetrics.Frame.TelemetryFrame(
                 7, UUID.randomUUID(), "gateway-es-1", "UP", 120, "ES", Instant.parse("2026-09-15T10:00:00Z")));
 
         String body = result.getResponse().getContentAsString();
