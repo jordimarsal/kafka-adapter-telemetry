@@ -17,7 +17,8 @@ const EVENT_NAMES = ['telemetry', 'duplicate', 'alert', 'dlt', 'heartbeat'] as c
 
 export function connectStream(
   handlers: StreamHandlers,
-  open: (url: string) => EventSourceLike = url => new EventSource(url),
+  // native EventSource satisfies EventSourceLike at runtime; DOM typings type onopen/onerror with an event parameter, hence the boundary cast
+  open: (url: string) => EventSourceLike = url => new EventSource(url) as unknown as EventSourceLike,
 ): () => void {
   const source = open('/api/v1/stream')
   let lastSeq = 0
