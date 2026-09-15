@@ -10,6 +10,9 @@ spring:
     password: ${ORACLE_PASS:telemetry}
   flyway:
     enabled: true
+  web:
+    resources:
+      static-locations: classpath:/static, file:dashboard/dist/
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:9092}
     consumer:

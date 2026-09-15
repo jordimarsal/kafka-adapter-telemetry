@@ -94,6 +94,15 @@ wait_container "$ORACLE_CONTAINER"
 [ -f "$HUB_JAR" ] || { echo "ERROR: $HUB_JAR not found. Run 'mvn -q package' first." >&2; exit 1; }
 echo "Kafka and Oracle healthy, jars present."
 
+section "Dashboard build"
+if [ ! -f "$REPO_ROOT/dashboard/dist/index.html" ]; then
+  if command -v npm >/dev/null 2>&1; then
+    (cd "$REPO_ROOT/dashboard" && npm ci && npm run build)
+  else
+    echo "WARNING: npm not found; the dashboard will not be served" >&2
+  fi
+fi
+
 section "Starting services"
 java -jar "$GATEWAY_JAR" > /tmp/adapter-gateway.log 2>&1 &
 PIDS+=($!)

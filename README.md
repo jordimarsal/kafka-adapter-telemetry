@@ -9,9 +9,11 @@ raises alerts. Java 25, Spring Boot 4.1, hexagonal architecture per service.
   Kafka; a deterministic traffic simulator drives demo profiles.
 - **telemetry-hub** (`:8082`) — consumes telemetry, upserts it into Oracle (primary
   key idempotency), maintains per-adapter health and publishes alerts to Kafka;
-  exposes a read API.
+  exposes a read API and a live SSE metrics tap, and serves the dashboard build.
 - **contracts** — zero-dependency module shared by both services: `TelemetryEvent`,
   `AlertEvent`, value objects and the sealed `Result` type.
+- **dashboard** (`dashboard/`, served at `:8082/`) — Vite + React single-page
+  mission-control UI: live SSE stream, client-side aggregation and demo controls.
 
 ## Architecture
 
@@ -32,7 +34,13 @@ flowchart LR
         L["TelemetryListener<br/>ErrorHandlingDeserializer + DefaultErrorHandler<br/>(2 retries → DLT)"]
         UC["ProcessTelemetryUseCase"]
         AH["AdapterHealth<br/>(tell-don't-ask aggregate)"]
+        TAP["TelemetryTap → InMemoryTelemetryMetrics<br/>DltObserver (DLT counts)"]
+        SSE["GET /api/v1/stream (SSE)<br/>GET /api/v1/metrics/snapshot"]
         RD["GET /api/v1/adapters"]
+    end
+
+    subgraph dash["dashboard (static build, same origin :8082)"]
+        UI["Vite + React<br/>client-side aggregation, ECharts<br/>demo controls"]
     end
 
     DB[("Oracle (Flyway)<br/>TELEMETRY_EVENT · ADAPTER_HEALTH · ADAPTER_ALERT")]
@@ -47,6 +55,12 @@ flowchart LR
     UC -->|"published alert"| DB
     L -->|"malformed JSON / exhausted retries"| T3
     DB --- RD
+    UC -->|"decisions (fast, non-throwing)"| TAP
+    T3 -->|"observed"| TAP
+    TAP --> SSE
+    SSE -->|"named events + heartbeat"| UI
+    UI -->|"fetch"| RD
+    UI -->|"POST simulate (CORS: only :8082)"| SIM
 ```
 
 ## Quickstart
@@ -71,6 +85,28 @@ Or run the services manually:
 java -jar adapter-gateway/target/adapter-gateway-0.1.0-SNAPSHOT.jar   # :8081
 java -jar telemetry-hub/target/telemetry-hub-0.1.0-SNAPSHOT.jar       # :8082
 ```
+
+### Dashboard
+
+The hub serves the mission-control dashboard at
+[http://localhost:8082/](http://localhost:8082/). The build lives in
+`dashboard/dist/`: `./demo.sh` builds it automatically when missing (npm
+required on `PATH`; without npm the demo still runs, just without the UI), or
+build it yourself once. Run the hub from the repo root so the relative
+`file:dashboard/dist/` static location resolves.
+
+```bash
+npm --prefix dashboard install    # once
+npm --prefix dashboard run build  # produces dashboard/dist/ (or let ./demo.sh do it)
+npm --prefix dashboard run dev    # dev mode: Vite on :5173, /api proxied to :8082
+```
+
+Data is same-origin in production (hub serves both UI and API), so CORS plays no
+role for it. Dev mode works through the Vite proxy (`/api` → `localhost:8082`).
+The only cross-origin call is the demo control POST to the gateway, whose base
+URL defaults to `http://localhost:8081` (override with `VITE_GATEWAY_URL` at
+build time) and whose CORS configuration allowlists exactly
+`http://localhost:8082`.
 
 Example calls:
 
@@ -138,6 +174,7 @@ Unknown profile → `400` with the list of valid ones.
 - [ADR-0001 — shared contracts module vs Schema Registry](docs/adr/0001-contracts-module-vs-schema-registry.md)
 - [ADR-0002 — own sealed `Result` type vs libraries or exceptions](docs/adr/0002-result-vs-exceptions.md)
 - [ADR-0003 — alert dual-write vs transactional outbox](docs/adr/0003-alert-dual-write-vs-outbox.md)
+- [ADR-0004 — dashboard toolchain and the SSE tap](docs/adr/0004-dashboard-toolchain-and-sse-tap.md)
 
 ## Testing
 
@@ -147,3 +184,5 @@ Unknown profile → `400` with the list of valid ones.
 | Application | use cases with in-memory fakes of the ports | JUnit 5 |
 | Kafka integration | producer→consumer roundtrip, DLT routing | `@EmbeddedKafka` (runs in `mvn package`) |
 | Oracle integration | idempotent stores against a real Oracle | Testcontainers (`OracleStoresIT`, excluded from the default build) |
+| Hub metrics | tap frames, SSE snapshot/stream endpoints, DLT counting | JUnit 5 unit + `@WebMvcTest` + `@EmbeddedKafka` |
+| Frontend unit/component | dashboard store, SSE client, series aggregation, UI components | Vitest + Testing Library (`npm --prefix dashboard test`) |
