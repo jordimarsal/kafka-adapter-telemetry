@@ -17,54 +17,9 @@ raises alerts. Java 25, Spring Boot 4.1, hexagonal architecture per service.
 
 ## Architecture
 
-```mermaid
-flowchart LR
-    subgraph gateway["adapter-gateway :8081"]
-        SIM["POST /api/v1/telemetry/simulate?profile=…<br/>seeded TrafficGenerator"]
-        ING["POST /api/v1/telemetry<br/>(single ingest)"]
-    end
+![System architecture: adapter-gateway publishes telemetry to Kafka, telemetry-hub consumes it and upserts into Oracle Free, and the Mission-Control Dashboard reads the SSE stream plus the read API](docs/images/system-architecture.png)
 
-    subgraph kafka["Kafka"]
-        T1["adapter.telemetry.v1<br/>(3 partitions, keyed by adapterId)"]
-        T2["adapter.alerts.v1"]
-        T3["adapter.telemetry.v1.dlt"]
-    end
-
-    subgraph hub["telemetry-hub :8082"]
-        L["TelemetryListener<br/>ErrorHandlingDeserializer + DefaultErrorHandler<br/>(2 retries → DLT)"]
-        UC["ProcessTelemetryUseCase"]
-        AH["AdapterHealth<br/>(tell-don't-ask aggregate)"]
-        TAP["TelemetryTap → InMemoryTelemetryMetrics<br/>DltObserver (DLT counts)"]
-        SSE["GET /api/v1/stream (SSE)<br/>GET /api/v1/metrics/snapshot"]
-        RD["GET /api/v1/adapters"]
-        RST["POST /api/v1/demo/reset"]
-    end
-
-    subgraph dash["dashboard (static build, same origin :8082)"]
-        UI["Vite + React<br/>client-side aggregation, ECharts<br/>demo controls"]
-    end
-
-    DB[("Oracle (Flyway)<br/>TELEMETRY_EVENT · ADAPTER_HEALTH · ADAPTER_ALERT")]
-
-    SIM -->|"String JSON"| T1
-    ING --> T1
-    T1 --> L --> UC
-    UC -->|"idempotent upsert"| DB
-    UC --> AH
-    AH -->|"3rd consecutive DOWN"| UC
-    UC -->|"AlertEvent"| T2
-    UC -->|"published alert"| DB
-    L -->|"malformed JSON / exhausted retries"| T3
-    DB --- RD
-    UC -->|"decisions (fast, non-throwing)"| TAP
-    T3 -->|"observed"| TAP
-    TAP --> SSE
-    SSE -->|"named events + heartbeat"| UI
-    UI -->|"fetch"| RD
-    UI -->|"POST simulate (CORS: only :8082)"| SIM
-```
-
-Interactive versions of these views — self-contained HTML, generated with
+The same views as interactive, self-contained HTML — generated with
 [Archify](https://github.com/tt-a1i/archify) from the versioned specs beside
 them, with dark/light themes, pan/zoom and search:
 
