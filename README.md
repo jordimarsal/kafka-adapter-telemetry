@@ -96,6 +96,13 @@ required on `PATH`; without npm the demo still runs, just without the UI), or
 build it yourself once. Run the hub from the repo root so the relative
 `file:dashboard/dist/` static location resolves.
 
+![The mission-control dashboard at http://localhost:8082/ mid-demo: ticker with hub totals, pipeline flow, live throughput and latency charts, alerts, integrity counters with readable dead-letter reasons, the adapter wall and the demo controls](docs/images/kafka-adapter-telemetry-demo.png)
+
+*Mid-demo view: throughput and latency charts fill as the profiles run, the
+alert feed shows the 3-DOWN episodes, integrity counts rejected duplicates and
+dead letters (with a readable reason), and the demo control panel hosts the
+profile buttons, **run full demo** and **reset demo**.*
+
 ```bash
 npm --prefix dashboard install    # once
 npm --prefix dashboard run build  # produces dashboard/dist/ (or let ./demo.sh do it)
