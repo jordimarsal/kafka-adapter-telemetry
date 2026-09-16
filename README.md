@@ -1,5 +1,7 @@
 # kafka-adapter-telemetry
 
+[![CI](https://github.com/jordimarsal/kafka-adapter-telemetry/actions/workflows/ci.yml/badge.svg)](https://github.com/jordimarsal/kafka-adapter-telemetry/actions/workflows/ci.yml)
+
 Adapter telemetry pipeline built for demonstration and interview walkthroughs: a
 Kafka-producing **adapter-gateway** with a seeded traffic simulator, and a
 **telemetry-hub** that persists to Oracle idempotently, tracks adapter health and
@@ -23,9 +25,12 @@ The same views as interactive, self-contained HTML — generated with
 [Archify](https://github.com/tt-a1i/archify) from the versioned specs beside
 them, with dark/light themes, pan/zoom and search:
 
-- [System architecture](docs/diagrams/architecture.html) · [spec](docs/diagrams/architecture.json)
-- [Telemetry event lifecycle: ingest → idempotency → alerts → DLT](docs/diagrams/sequence.html) · [spec](docs/diagrams/sequence.json)
-- [Adapter health lifecycle: DOWN streaks, alerts and recovery](docs/diagrams/lifecycle.html) · [spec](docs/diagrams/lifecycle.json)
+- [System architecture](https://jordimarsal.github.io/kafka-adapter-telemetry/diagrams/architecture.html) · [spec](docs/diagrams/architecture.json)
+- [Telemetry event lifecycle: ingest → idempotency → alerts → DLT](https://jordimarsal.github.io/kafka-adapter-telemetry/diagrams/sequence.html) · [spec](docs/diagrams/sequence.json)
+- [Adapter health lifecycle: DOWN streaks, alerts and recovery](https://jordimarsal.github.io/kafka-adapter-telemetry/diagrams/lifecycle.html) · [spec](docs/diagrams/lifecycle.json)
+
+(The Pages links need the diagrams deployed; a local checkout can open the same
+files under `docs/diagrams/` directly.)
 
 ## Quickstart
 
