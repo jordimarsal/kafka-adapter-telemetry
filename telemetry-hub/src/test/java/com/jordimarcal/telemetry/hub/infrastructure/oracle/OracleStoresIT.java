@@ -137,6 +137,25 @@ class OracleStoresIT {
                 "a second alert for the same trigger must be rejected by the UNIQUE constraint");
     }
 
+    @Test
+    void resetClearsEveryTableSoReplayedIdsCountAsNew() {
+        AdapterId id = new AdapterId("it-adapter-1");
+        var event = event(Status.UP, UUID.randomUUID());
+        assertTrue(telemetryStore.append(event).isOk());
+        alertStore.record(AlertEvent.forTrigger(UUID.randomUUID(), id, "3 DOWN", Instant.now()));
+        healthRepository.save(healthRepository.find(id)
+                .observe(event(Status.DOWN, UUID.randomUUID(), Instant.now())).next());
+
+        telemetryStore.clear();
+        alertStore.clear();
+        healthRepository.clear();
+
+        assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM telemetry_event", Integer.class));
+        assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM adapter_alert", Integer.class));
+        assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM adapter_health", Integer.class));
+        assertTrue(telemetryStore.append(event).isOk(), "after a reset the same event id must append as new");
+    }
+
     private static TelemetryEvent event(Status status, UUID eventId) {
         return event(status, eventId, Instant.now());
     }

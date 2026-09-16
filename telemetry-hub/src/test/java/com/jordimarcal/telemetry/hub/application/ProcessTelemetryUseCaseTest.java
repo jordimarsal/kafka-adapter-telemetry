@@ -33,6 +33,12 @@ class ProcessTelemetryUseCaseTest {
             }
             return Result.ok((long) ++appended);
         }
+
+        @Override
+        public void clear() {
+            seen.clear();
+            appended = 0;
+        }
     }
 
     static final class InMemoryHealthRepository implements HealthRepository {
@@ -51,6 +57,12 @@ class ProcessTelemetryUseCaseTest {
             lastSaved = health;
             saves++;
         }
+
+        @Override
+        public void clear() {
+            lastSaved = null;
+            saves = 0;
+        }
     }
 
     static final class InMemoryAlerts implements AlertStore, AlertPublisher {
@@ -65,6 +77,12 @@ class ProcessTelemetryUseCaseTest {
         @Override
         public void publish(AlertEvent alert) {
             published.add(alert);
+        }
+
+        @Override
+        public void clear() {
+            recorded.clear();
+            published.clear();
         }
     }
 

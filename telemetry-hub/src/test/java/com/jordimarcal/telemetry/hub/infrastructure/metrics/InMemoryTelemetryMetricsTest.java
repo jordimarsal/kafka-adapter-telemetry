@@ -65,6 +65,21 @@ class InMemoryTelemetryMetricsTest {
     }
 
     @Test
+    void resetZeroesTotalsButKeepsSeqMonotonic() {
+        var metrics = new InMemoryTelemetryMetrics();
+        metrics.onDuplicate(event(Status.UP));
+        metrics.onDlt("broken");
+        long before = metrics.seq();
+
+        metrics.reset();
+
+        assertEquals(new InMemoryTelemetryMetrics.Totals(0, 0, 0), metrics.totals());
+        assertEquals(before, metrics.seq());
+        metrics.onProcessed(event(Status.UP));
+        assertEquals(before + 1, metrics.seq(), "frames published after a reset keep the seq monotonic");
+    }
+
+    @Test
     void removedListenerStopsReceivingFrames() {
         var metrics = new InMemoryTelemetryMetrics();
         List<InMemoryTelemetryMetrics.Frame> received = new ArrayList<>();

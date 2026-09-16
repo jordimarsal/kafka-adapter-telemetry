@@ -12,4 +12,10 @@ public interface HealthRepository {
     AdapterHealth find(AdapterId adapterId);
 
     void save(AdapterHealth health);
+
+    /**
+     * Demo-reset only: forgets every adapter so the wall starts empty again.
+     * Never called from the ingest path.
+     */
+    void clear();
 }

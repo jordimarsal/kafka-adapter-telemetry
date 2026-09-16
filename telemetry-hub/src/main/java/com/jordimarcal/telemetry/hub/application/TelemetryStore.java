@@ -12,6 +12,12 @@ public interface TelemetryStore {
 
     Result<Long, DuplicateTelemetry> append(TelemetryEvent event);
 
+    /**
+     * Demo-reset only: drops every stored event so replayed ids count as new
+     * again. Never called from the ingest path.
+     */
+    void clear();
+
     record DuplicateTelemetry(UUID eventId) {
     }
 }

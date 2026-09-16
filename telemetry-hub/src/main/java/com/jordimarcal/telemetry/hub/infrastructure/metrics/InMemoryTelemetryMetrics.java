@@ -69,6 +69,16 @@ public final class InMemoryTelemetryMetrics implements TelemetryTap {
         return new Totals(duplicates.sum(), alerts.sum(), dlt.sum());
     }
 
+    /**
+     * Demo-reset only: zeroes the counters while {@code seq} keeps its
+     * monotonic course, so clients never see a seq regression mid-stream.
+     */
+    public void reset() {
+        duplicates.reset();
+        alerts.reset();
+        dlt.reset();
+    }
+
     public long seq() {
         return seq.get();
     }

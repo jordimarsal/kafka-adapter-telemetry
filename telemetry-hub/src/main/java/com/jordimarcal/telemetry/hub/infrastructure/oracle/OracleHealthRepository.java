@@ -55,4 +55,9 @@ public class OracleHealthRepository implements HealthRepository {
                 health.consecutiveDown(), active, seen,
                 health.adapterId().value(), health.consecutiveDown(), active, seen);
     }
+
+    @Override
+    public void clear() {
+        jdbc.execute("TRUNCATE TABLE adapter_health");
+    }
 }

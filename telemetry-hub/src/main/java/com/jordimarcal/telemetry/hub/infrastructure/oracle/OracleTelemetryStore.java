@@ -35,6 +35,11 @@ public class OracleTelemetryStore implements TelemetryStore {
         }
     }
 
+    @Override
+    public void clear() {
+        jdbc.execute("TRUNCATE TABLE telemetry_event");
+    }
+
     static byte[] uuidBytes(UUID id) {
         return ByteBuffer.allocate(16)
                 .putLong(id.getMostSignificantBits())

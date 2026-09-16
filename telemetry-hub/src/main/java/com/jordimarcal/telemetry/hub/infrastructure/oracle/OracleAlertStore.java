@@ -35,4 +35,9 @@ public class OracleAlertStore implements AlertStore {
             log.debug("alert {} already recorded (replay)", alert.alertId());
         }
     }
+
+    @Override
+    public void clear() {
+        jdbc.execute("TRUNCATE TABLE adapter_alert");
+    }
 }

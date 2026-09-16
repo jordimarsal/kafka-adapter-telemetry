@@ -213,6 +213,11 @@ class TelemetryListenerIT {
             appended.put(event.eventId(), event);
             return Result.ok((long) appended.size());
         }
+
+        @Override
+        public synchronized void clear() {
+            appended.clear();
+        }
     }
 
     static class InMemoryHealthRepository implements HealthRepository {
@@ -228,6 +233,11 @@ class TelemetryListenerIT {
         public void save(AdapterHealth health) {
             saved.put(health.adapterId().value(), health);
         }
+
+        @Override
+        public void clear() {
+            saved.clear();
+        }
     }
 
     static class InMemoryAlertStore implements AlertStore {
@@ -237,6 +247,11 @@ class TelemetryListenerIT {
         @Override
         public void record(AlertEvent alert) {
             recorded.add(alert);
+        }
+
+        @Override
+        public void clear() {
+            recorded.clear();
         }
     }
 }

@@ -9,4 +9,10 @@ import com.jordimarcal.telemetry.contracts.AlertEvent;
 public interface AlertStore {
 
     void record(AlertEvent alert);
+
+    /**
+     * Demo-reset only: wipes the alert history so a new demo run raises its
+     * own alerts. Never called from the ingest path.
+     */
+    void clear();
 }
