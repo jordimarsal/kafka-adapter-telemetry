@@ -20,10 +20,25 @@ export function emptySeries(): Series {
 }
 
 export function foldTelemetry(series: Series, latencyMs: number, nowMs: number): Series {
+  return foldIntoBucket(series, nowMs, latencyMs)
+}
+
+/**
+ * Counts an event that carries no latency sample (a rejected duplicate) into
+ * the same one-second buckets, so the throughput chart reflects every frame
+ * the hub actually handles.
+ */
+export function countEvent(series: Series, nowMs: number): Series {
+  return foldIntoBucket(series, nowMs, null)
+}
+
+function foldIntoBucket(series: Series, nowMs: number, sample: number | null): Series {
   const second = Math.floor(nowMs / BUCKET_MS)
   const last = series.buckets.at(-1)
   const previous = last && last.second === second ? last : undefined
-  const samples = previous && previous.samples.length < SAMPLE_CAP ? [...previous.samples, latencyMs] : previous ? previous.samples : [latencyMs]
+  const samples = sample === null
+    ? previous?.samples ?? []
+    : previous && previous.samples.length < SAMPLE_CAP ? [...previous.samples, sample] : previous ? previous.samples : [sample]
   const bucket: Bucket = { second, count: (previous?.count ?? 0) + 1, samples }
   const buckets = previous ? [...series.buckets.slice(0, -1), bucket] : [...series.buckets, bucket]
   return { resets: series.resets, buckets: buckets.slice(-MAX_BUCKETS) }

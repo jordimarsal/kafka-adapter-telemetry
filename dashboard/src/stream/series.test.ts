@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { emptySeries, foldTelemetry, histogram, latenciesWithin, markReset, percentile, rateAt } from './series'
+import { countEvent, emptySeries, foldTelemetry, histogram, latenciesWithin, markReset, percentile, rateAt } from './series'
 
 describe('foldTelemetry', () => {
   test('counts events into one-second buckets', () => {
@@ -27,6 +27,17 @@ describe('foldTelemetry', () => {
     }
     expect(s.buckets[0].count).toBe(70)
     expect(s.buckets[0].samples).toHaveLength(64)
+  })
+})
+
+describe('countEvent', () => {
+  test('counts into the same buckets as foldTelemetry without adding samples', () => {
+    let s = emptySeries()
+    s = foldTelemetry(s, 100, 1000)
+    s = countEvent(s, 1200)
+    s = countEvent(s, 1400)
+    expect(rateAt(s, 1)).toBe(3)
+    expect(latenciesWithin(s, 0)).toEqual([100])
   })
 })
 

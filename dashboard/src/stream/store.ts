@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react'
-import { emptySeries, foldTelemetry, markReset, type Series } from './series'
+import { countEvent, emptySeries, foldTelemetry, markReset, type Series } from './series'
 import type { AdapterSummary, ConnectionStatus, Snapshot, StreamFrame, Totals } from './types'
 
 export interface AlertItem {
@@ -86,6 +86,7 @@ export class DashboardStore {
         break
       }
       case 'duplicate':
+        patch.series = countEvent(series, Date.now())
         break
     }
     this.set(patch)

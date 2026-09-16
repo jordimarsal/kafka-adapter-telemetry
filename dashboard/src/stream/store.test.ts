@@ -46,6 +46,17 @@ describe('store.apply', () => {
     expect(state.dltFeed).toHaveLength(0)
   })
 
+  test('duplicate frames count as pipeline traffic but add no latency samples', () => {
+    const s = fresh()
+    s.apply(telemetry(1, 120))
+    s.apply({ kind: 'duplicate', seq: 2, eventId: 'e1', adapterId: 'gw-1' })
+    s.flush()
+    const state = s.getState()
+    expect(state.series.buckets.at(-1)?.count).toBe(2)
+    expect(state.series.buckets.at(-1)?.samples).toEqual([120])
+    expect(state.sessionEvents).toBe(1)
+  })
+
   test('alerts and dlt frames feed their lists with caps', () => {
     const s = fresh()
     for (let i = 1; i <= 55; i++) {
