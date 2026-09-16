@@ -37,6 +37,7 @@ flowchart LR
         TAP["TelemetryTap → InMemoryTelemetryMetrics<br/>DltObserver (DLT counts)"]
         SSE["GET /api/v1/stream (SSE)<br/>GET /api/v1/metrics/snapshot"]
         RD["GET /api/v1/adapters"]
+        RST["POST /api/v1/demo/reset"]
     end
 
     subgraph dash["dashboard (static build, same origin :8082)"]
@@ -107,6 +108,15 @@ The only cross-origin call is the demo control POST to the gateway, whose base
 URL defaults to `http://localhost:8081` (override with `VITE_GATEWAY_URL` at
 build time) and whose CORS configuration allowlists exactly
 `http://localhost:8082`.
+
+### Resetting the demo
+
+The dashboard's **reset demo** button (or `POST /api/v1/demo/reset`) wipes the
+demo state so the next run starts from zero: the three Oracle tables
+(`telemetry_event`, `adapter_alert`, `adapter_health`) are truncated and the
+hub's in-memory counters go back to zero. The stream's `seq` never rewinds, so
+connected clients resync through the returned snapshot. Kafka topics are left
+alone — consumer offsets are committed, so nothing is reprocessed.
 
 Example calls:
 
