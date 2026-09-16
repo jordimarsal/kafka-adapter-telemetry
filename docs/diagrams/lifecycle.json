@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "Adapter Health Lifecycle \u2014 DOWN Streaks, Alerts and Recovery",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "streak",
+        "label": "Building the streak",
+        "focus": [
+          "healthy",
+          "degraded",
+          "alerting"
+        ],
+        "note": "Two DOWNs stay amber; the third crosses the threshold."
+      },
+      {
+        "id": "suppression",
+        "label": "One alert per streak",
+        "focus": [
+          "alerting",
+          "held"
+        ],
+        "note": "Further DOWNs keep counting without raising a second alert."
+      },
+      {
+        "id": "recovery",
+        "label": "Recovery and replays",
+        "focus": [
+          "degraded",
+          "alerting",
+          "healthy"
+        ],
+        "note": "Any UP resets the streak and closes the alert."
+      }
+    ],
+    "viewBox": [
+      1080,
+      566
+    ]
+  },
+  "lanes": [
+    {
+      "id": "main",
+      "label": "Health phases"
+    },
+    {
+      "id": "suppression",
+      "label": "Alert suppression"
+    }
+  ],
+  "states": [
+    {
+      "id": "healthy",
+      "type": "start",
+      "label": "Healthy",
+      "sublabel": "0 consecutive DOWN",
+      "lane": "main",
+      "col": 0,
+      "step": "01",
+      "tag": "green"
+    },
+    {
+      "id": "degraded",
+      "type": "active",
+      "label": "Degraded",
+      "sublabel": "1\u20132 consecutive DOWN",
+      "lane": "main",
+      "col": 1,
+      "step": "02",
+      "tag": "amber"
+    },
+    {
+      "id": "alerting",
+      "type": "failure",
+      "label": "Alert active",
+      "sublabel": "3rd DOWN raises one alert",
+      "lane": "main",
+      "col": 2,
+      "step": "03",
+      "tag": "red"
+    },
+    {
+      "id": "held",
+      "type": "waiting",
+      "label": "Streak continues",
+      "sublabel": "no second alert",
+      "lane": "suppression",
+      "col": 0,
+      "tag": "4th+ DOWN"
+    }
+  ],
+  "transitions": [
+    {
+      "id": "first-down",
+      "from": "healthy",
+      "to": "degraded",
+      "note": "The streak starts counting"
+    },
+    {
+      "id": "third-down",
+      "from": "degraded",
+      "to": "alerting",
+      "variant": "emphasis",
+      "note": "Exactly one alert per streak; its id derives from the triggering event id"
+    },
+    {
+      "id": "further-down",
+      "from": "alerting",
+      "to": "held",
+      "note": "alertActive stays true while consecutiveDown keeps growing",
+      "route": "drop"
+    },
+    {
+      "id": "early-recovery",
+      "from": "degraded",
+      "to": "healthy",
+      "label": "UP",
+      "route": "top-channel"
+    },
+    {
+      "id": "alert-closed",
+      "from": "alerting",
+      "to": "healthy",
+      "label": "UP",
+      "route": "bottom-channel",
+      "note": "The alert closes; a later streak alerts again"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Threshold",
+      "items": [
+        "Two DOWNs stay amber without an alert",
+        "The third raises exactly one alert per streak",
+        "AdapterHealth.observe returns the next state plus an optional alert"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Suppression",
+      "items": [
+        "A 4th or later DOWN keeps counting the streak",
+        "alertActive stays true, so no second alert is derived",
+        "DEGRADED observations leave both counters untouched"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Recovery and replays",
+      "items": [
+        "Any UP resets the streak and closes the alert",
+        "Alert ids derive from the trigger, so replays never duplicate one",
+        "The aggregate is immutable: every observation returns a new state"
+      ]
+    }
+  ]
+}

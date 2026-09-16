@@ -1,0 +1,232 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "kafka-adapter-telemetry \u2014 System Architecture",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "ingest-path",
+        "label": "Ingest path",
+        "focus": [
+          "gateway",
+          "topic-telemetry",
+          "hub",
+          "oracle"
+        ],
+        "note": "REST ingest to the idempotent Oracle upsert, keyed by adapterId."
+      },
+      {
+        "id": "control-and-live-view",
+        "label": "Control and live view",
+        "focus": [
+          "dashboard",
+          "hub",
+          "gateway"
+        ],
+        "note": "Same-origin read API and SSE stream, cross-origin demo control."
+      },
+      {
+        "id": "failure-path",
+        "label": "Failure path",
+        "focus": [
+          "topic-telemetry",
+          "hub",
+          "topic-dlt"
+        ],
+        "note": "Malformed JSON or exhausted retries route the record to the DLT."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "dashboard",
+      "type": "frontend",
+      "label": "Mission-Control Dashboard",
+      "sublabel": "Vite + React \u00b7 served at :8082",
+      "tag": "SSE + ECharts",
+      "pos": [
+        500,
+        100
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "gateway",
+      "type": "backend",
+      "label": "adapter-gateway",
+      "sublabel": "REST ingest \u00b7 :8081",
+      "tag": "seeded simulator",
+      "pos": [
+        120,
+        300
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "topic-telemetry",
+      "type": "messagebus",
+      "label": "adapter.telemetry.v1",
+      "sublabel": "keyed by adapterId",
+      "pos": [
+        420,
+        280
+      ],
+      "size": [
+        160,
+        64
+      ],
+      "tag": "3 partitions"
+    },
+    {
+      "id": "hub",
+      "type": "backend",
+      "label": "telemetry-hub",
+      "sublabel": "consumer + read API \u00b7 :8082",
+      "pos": [
+        740,
+        290
+      ],
+      "size": [
+        160,
+        72
+      ]
+    },
+    {
+      "id": "oracle",
+      "type": "database",
+      "label": "Oracle Free",
+      "sublabel": "Flyway \u00b7 3 tables",
+      "tag": "primary-key idempotency",
+      "pos": [
+        1100,
+        300
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "topic-alerts",
+      "type": "messagebus",
+      "label": "adapter.alerts.v1",
+      "sublabel": "published alerts",
+      "pos": [
+        420,
+        390
+      ],
+      "size": [
+        160,
+        60
+      ]
+    },
+    {
+      "id": "topic-dlt",
+      "type": "messagebus",
+      "label": "adapter.telemetry.v1.dlt",
+      "sublabel": "dead letters",
+      "pos": [
+        420,
+        500
+      ],
+      "size": [
+        160,
+        60
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Kafka",
+      "wraps": [
+        "topic-telemetry",
+        "topic-alerts",
+        "topic-dlt"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "dashboard-to-gateway",
+      "from": "dashboard",
+      "to": "gateway",
+      "label": "POST /simulate (CORS :8082)",
+      "variant": "emphasis",
+      "toSide": "top"
+    },
+    {
+      "id": "gateway-to-telemetry",
+      "from": "gateway",
+      "to": "topic-telemetry",
+      "label": "String JSON",
+      "variant": "emphasis"
+    },
+    {
+      "id": "telemetry-to-hub",
+      "from": "topic-telemetry",
+      "to": "hub",
+      "label": "consume"
+    },
+    {
+      "id": "hub-to-oracle",
+      "from": "hub",
+      "to": "oracle",
+      "label": "idempotent upsert"
+    },
+    {
+      "id": "hub-to-alerts",
+      "from": "hub",
+      "to": "topic-alerts",
+      "label": "AlertEvent"
+    },
+    {
+      "id": "hub-to-dlt",
+      "from": "hub",
+      "to": "topic-dlt",
+      "label": "malformed JSON / retries exhausted",
+      "fromSide": "right",
+      "toSide": "right"
+    },
+    {
+      "id": "hub-to-dashboard",
+      "from": "hub",
+      "to": "dashboard",
+      "label": "SSE + read API"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Ingest",
+      "items": [
+        "REST ingest on :8081; a seeded TrafficGenerator drives the profiles",
+        "Browser control is CORS-allowlisted to the dashboard origin"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Pipeline",
+      "items": [
+        "Two retries, then the record is routed to the DLT",
+        "The Oracle primary key is the idempotency referee"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Observability",
+      "items": [
+        "TelemetryTap fans decisions into in-memory metrics",
+        "SSE plus snapshot feed the dashboard; DltObserver counts dead letters"
+      ]
+    }
+  ]
+}

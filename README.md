@@ -64,6 +64,14 @@ flowchart LR
     UI -->|"POST simulate (CORS: only :8082)"| SIM
 ```
 
+Interactive versions of these views — self-contained HTML, generated with
+[Archify](https://github.com/tt-a1i/archify) from the versioned specs beside
+them, with dark/light themes, pan/zoom and search:
+
+- [System architecture](docs/diagrams/architecture.html) · [spec](docs/diagrams/architecture.json)
+- [Telemetry event lifecycle: ingest → idempotency → alerts → DLT](docs/diagrams/sequence.html) · [spec](docs/diagrams/sequence.json)
+- [Adapter health lifecycle: DOWN streaks, alerts and recovery](docs/diagrams/lifecycle.html) · [spec](docs/diagrams/lifecycle.json)
+
 ## Quickstart
 
 Prerequisites: Docker, Java 25, Maven.

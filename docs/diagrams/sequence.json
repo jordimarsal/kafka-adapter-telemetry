@@ -1,0 +1,233 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Telemetry Event Lifecycle \u2014 Ingest, Idempotency, Alerts and Dead Letters",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "column_fit": "spread",
+    "viewBox": [
+      1050,
+      545
+    ],
+    "views": [
+      {
+        "id": "accept",
+        "label": "Accept the batch",
+        "focus": [
+          "client",
+          "gateway",
+          "kafka"
+        ],
+        "note": "The gateway answers before the hub has processed anything."
+      },
+      {
+        "id": "idempotent-write",
+        "label": "Idempotent write",
+        "focus": [
+          "kafka",
+          "hub",
+          "oracle"
+        ],
+        "note": "A replay is an expected Result.Err, not a failure."
+      },
+      {
+        "id": "alert-and-failure",
+        "label": "Alert and failure paths",
+        "focus": [
+          "hub",
+          "kafka",
+          "client"
+        ],
+        "note": "Alerts, dead letters and the live view all leave the hub."
+      }
+    ]
+  },
+  "participants": [
+    {
+      "id": "client",
+      "type": "external",
+      "label": "Dashboard",
+      "sublabel": "demo control + live view"
+    },
+    {
+      "id": "gateway",
+      "type": "backend",
+      "label": "adapter-gateway",
+      "sublabel": "REST ingest :8081"
+    },
+    {
+      "id": "kafka",
+      "type": "messagebus",
+      "label": "Kafka",
+      "sublabel": "topics + DLT"
+    },
+    {
+      "id": "hub",
+      "type": "backend",
+      "label": "telemetry-hub",
+      "sublabel": "consumer + read API"
+    },
+    {
+      "id": "oracle",
+      "type": "database",
+      "label": "Oracle Free",
+      "sublabel": "TELEMETRY_EVENT \u00b7 ADAPTER_HEALTH"
+    }
+  ],
+  "segments": [
+    {
+      "from": 150,
+      "to": 266,
+      "label": "Ingest"
+    },
+    {
+      "from": 274,
+      "to": 386,
+      "label": "Idempotency and health"
+    },
+    {
+      "from": 394,
+      "to": 500,
+      "label": "Alerts, DLT and live view"
+    }
+  ],
+  "messages": [
+    {
+      "from": "client",
+      "to": "gateway",
+      "y": 180,
+      "label": "POST /api/v1/telemetry/simulate?profile=high",
+      "variant": "emphasis"
+    },
+    {
+      "from": "gateway",
+      "to": "kafka",
+      "y": 208,
+      "label": "publish adapter.telemetry.v1 \u00b7 keyed by adapterId",
+      "variant": "emphasis"
+    },
+    {
+      "from": "gateway",
+      "to": "client",
+      "y": 236,
+      "label": "200 accepted + counts",
+      "variant": "return"
+    },
+    {
+      "from": "kafka",
+      "to": "hub",
+      "y": 264,
+      "label": "consume adapter.telemetry.v1",
+      "variant": "emphasis"
+    },
+    {
+      "from": "hub",
+      "to": "oracle",
+      "y": 292,
+      "label": "INSERT telemetry_event (event_id PK)",
+      "variant": "emphasis"
+    },
+    {
+      "from": "oracle",
+      "to": "hub",
+      "y": 320,
+      "label": "DuplicateKeyException \u2192 Result.Err",
+      "variant": "return",
+      "note": "On a replay the use case stops here: debug log plus tap.onDuplicate, no health write."
+    },
+    {
+      "from": "hub",
+      "to": "oracle",
+      "y": 348,
+      "label": "MERGE adapter_health (new event only)",
+      "variant": "emphasis"
+    },
+    {
+      "from": "hub",
+      "to": "kafka",
+      "y": 376,
+      "label": "AlertEvent \u2192 adapter.alerts.v1 on the 3rd consecutive DOWN",
+      "variant": "emphasis"
+    },
+    {
+      "from": "hub",
+      "to": "kafka",
+      "y": 404,
+      "label": "malformed JSON \u00b7 retries exhausted \u2192 \u2026v1.dlt",
+      "variant": "dashed"
+    },
+    {
+      "from": "kafka",
+      "to": "hub",
+      "y": 432,
+      "label": "DltObserver counts it with a readable reason",
+      "variant": "dashed"
+    },
+    {
+      "from": "hub",
+      "to": "client",
+      "y": 460,
+      "label": "SSE frames + heartbeat (same origin)",
+      "variant": "dashed"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "gateway",
+      "from": 174,
+      "to": 240,
+      "type": "backend"
+    },
+    {
+      "participant": "kafka",
+      "from": 206,
+      "to": 286,
+      "type": "messagebus"
+    },
+    {
+      "participant": "hub",
+      "from": 270,
+      "to": 502,
+      "type": "backend"
+    },
+    {
+      "participant": "oracle",
+      "from": 302,
+      "to": 376,
+      "type": "database"
+    },
+    {
+      "participant": "kafka",
+      "from": 396,
+      "to": 476,
+      "type": "messagebus"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Idempotency",
+      "items": [
+        "The Oracle primary key is the referee",
+        "A replay is an expected Result.Err, not an exception"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Domain decisions",
+      "items": [
+        "AdapterHealth.observe returns the next state plus an optional alert",
+        "Alert ids derive from the trigger event"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Failure and live view",
+      "items": [
+        "Malformed JSON fails deserialization; two retries then the DLT",
+        "DltObserver counts it; the SSE tap feeds the dashboard"
+      ]
+    }
+  ]
+}
