@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { runFullDemo } from '../demo/runFullDemo'
 import { simulate } from '../api/gateway'
-import { fetchSnapshot } from '../api/hub'
+import { fetchSnapshot, resetDemo } from '../api/hub'
 import { store } from '../stream/store'
 import { Panel } from './Panel'
 
@@ -44,6 +44,18 @@ export function DemoControl() {
     }
   }
 
+  async function reset(): Promise<void> {
+    setBusy(true)
+    setError(null)
+    try {
+      store.reset(await resetDemo())
+    } catch (cause) {
+      setError(String(cause))
+    } finally {
+      setBusy(false)
+    }
+  }
+
   return (
     <Panel label="demo control">
       <div className="flex items-center gap-2 text-[10px]">
@@ -65,6 +77,14 @@ export function DemoControl() {
           className="rounded border border-up px-4 py-1.5 uppercase tracking-widest text-up transition hover:bg-up/10 disabled:opacity-40"
         >
           run full demo
+        </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void reset()}
+          className="rounded border border-down px-4 py-1.5 uppercase tracking-widest text-down transition hover:bg-down/10 disabled:opacity-40"
+        >
+          reset demo
         </button>
         {busy && (
           <button type="button" onClick={() => { abort.current = true }} className="text-down uppercase tracking-widest">

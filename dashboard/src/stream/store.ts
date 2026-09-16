@@ -96,6 +96,21 @@ export class DashboardStore {
     this.set({ seq: snapshot.seq, totals: snapshot.totals })
   }
 
+  /**
+   * Demo reset: returns to a blank session and adopts the fresh snapshot the
+   * hub answers with. Applies synchronously — no rAF batching — and keeps
+   * the live connection status.
+   */
+  reset(snapshot: Snapshot): void {
+    this.state = {
+      ...initialState,
+      status: this.state.status,
+      seq: snapshot.seq,
+      totals: snapshot.totals,
+    }
+    this.listeners.forEach(listener => listener())
+  }
+
   markReset(): void {
     this.set({ series: markReset(this.state.series, Date.now()) })
   }
