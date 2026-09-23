@@ -64,7 +64,7 @@ required on `PATH`; without npm the demo still runs, just without the UI), or
 build it yourself once. Run the hub from the repo root so the relative
 `file:dashboard/dist/` static location resolves.
 
-![The mission-control dashboard at http://localhost:8082/ mid-demo: ticker with hub totals, pipeline flow, live throughput and latency charts, alerts, integrity counters with readable dead-letter reasons, the adapter wall and the demo controls](docs/images/kafka-adapter-telemetry-demo.png)
+https://github.com/jordimarsal/kafka-adapter-telemetry/releases/download/v0.1.0/dashboard.mp4
 
 *Mid-demo view: throughput and latency charts fill as the profiles run, the
 alert feed shows the 3-DOWN episodes, integrity counts rejected duplicates and
