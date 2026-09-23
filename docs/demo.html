@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>kafka-adapter-telemetry — dashboard demo</title>
+<style>
+  :root { color-scheme: dark; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: grid;
+    place-content: center;
+    gap: 1.5rem;
+    padding: 2rem;
+    background: #05070a;
+    color: #e6edf3;
+    font: 14px/1.6 ui-monospace, "JetBrains Mono", Menlo, monospace;
+  }
+  h1 {
+    margin: 0;
+    font-size: 1rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #8b98ab;
+  }
+  video {
+    width: min(1100px, 92vw);
+    border: 1px solid #1c2530;
+    border-radius: 8px;
+    background: #0a0e14;
+  }
+  a { color: #3ddc97; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  small { color: #4d5a6d; }
+  code { color: #8b98ab; }
+</style>
+</head>
+<body>
+  <h1>Dashboard demo</h1>
+  <video src="images/dashboard.mp4" controls autoplay muted playsinline loop></video>
+  <small>Mission-control dashboard mid-demo: streaming totals, throughput and latency charts, the alert feed and integrity counters. Back to <a href="index.html">diagrams</a> · <a href="https://github.com/jordimarsal/kafka-adapter-telemetry">repository</a>.</small>
+</body>
+</html>
