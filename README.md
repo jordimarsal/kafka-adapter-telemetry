@@ -19,11 +19,12 @@ raises alerts. Java 25, Spring Boot 4.1, hexagonal architecture per service.
 
 ## Architecture
 
-![System architecture: adapter-gateway publishes telemetry to Kafka, telemetry-hub consumes it and upserts into Oracle Free, and the Mission-Control Dashboard reads the SSE stream plus the read API](docs/images/system-architecture.png)
+[![System architecture: adapter-gateway publishes telemetry to Kafka, telemetry-hub consumes it and upserts into Oracle Free, and the Mission-Control Dashboard reads the SSE stream plus the read API](docs/images/system-architecture.png)](https://jordimarsal.github.io/kafka-adapter-telemetry/index.html)
 
 The same views as interactive, self-contained HTML — generated with
 [Archify](https://github.com/tt-a1i/archify) from the versioned specs beside
-them, with dark/light themes, pan/zoom and search:
+them, with dark/light themes, pan/zoom and search (click the diagram above to
+open the full index):
 
 - [System architecture](https://jordimarsal.github.io/kafka-adapter-telemetry/diagrams/architecture.html) · [spec](docs/diagrams/architecture.json)
 - [Telemetry event lifecycle: ingest → idempotency → alerts → DLT](https://jordimarsal.github.io/kafka-adapter-telemetry/diagrams/sequence.html) · [spec](docs/diagrams/sequence.json)
