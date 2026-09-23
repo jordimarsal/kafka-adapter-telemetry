@@ -32,6 +32,15 @@
   }
   a { color: #3ddc97; text-decoration: none; }
   a:hover { text-decoration: underline; }
+  a.back {
+    justify-self: start;
+    padding: 0.5rem 0.9rem;
+    border: 1px solid #1c2530;
+    border-radius: 8px;
+    background: #0a0e14;
+    transition: border-color 120ms ease;
+  }
+  a.back:hover { border-color: #3ddc97; text-decoration: none; }
   small { color: #4d5a6d; }
   code { color: #8b98ab; }
 </style>
@@ -39,6 +48,7 @@
 <body>
   <h1>Dashboard demo</h1>
   <video src="images/dashboard.mp4" controls autoplay muted playsinline loop></video>
+  <a class="back" href="https://github.com/jordimarsal/kafka-adapter-telemetry/blob/main/README.md">← Back to README</a>
   <small>Mission-control dashboard mid-demo: streaming totals, throughput and latency charts, the alert feed and integrity counters. Back to <a href="index.html">diagrams</a> · <a href="https://github.com/jordimarsal/kafka-adapter-telemetry">repository</a>.</small>
 </body>
 </html>
