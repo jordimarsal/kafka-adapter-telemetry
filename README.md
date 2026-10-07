@@ -162,8 +162,17 @@ Unknown profile → `400` with the list of valid ones.
 - [ADR-0002 — own sealed `Result` type vs libraries or exceptions](docs/adr/0002-result-vs-exceptions.md)
 - [ADR-0003 — alert dual-write vs transactional outbox](docs/adr/0003-alert-dual-write-vs-outbox.md)
 - [ADR-0004 — dashboard toolchain and the SSE tap](docs/adr/0004-dashboard-toolchain-and-sse-tap.md)
+- [ADR-0005 — JaCoCo for test coverage](docs/adr/0005-jacoco-coverage.md)
 
 ## Testing
+
+Every `mvn -q package` also produces a per-module JaCoCo XML report
+(`<module>/target/site/jacoco/jacoco.xml`, HTML index next to it), and
+`npm --prefix dashboard test` always emits an lcov report
+(`dashboard/coverage/lcov.info`). The repo-root `sonar-project.properties`
+points SonarQube at both (plus the module bytecode), so the Sonar dashboard
+shows real coverage; `docs/diagrams/**` and `docs/demo.html` are excluded from
+the scan as generated artifacts.
 
 | Level | What | Tooling |
 |-------|------|---------|
@@ -173,3 +182,4 @@ Unknown profile → `400` with the list of valid ones.
 | Oracle integration | idempotent stores against a real Oracle | Testcontainers (`OracleStoresIT`, excluded from the default build) |
 | Hub metrics | tap frames, SSE snapshot/stream endpoints, DLT counting | JUnit 5 unit + `@WebMvcTest` + `@EmbeddedKafka` |
 | Frontend unit/component | dashboard store, SSE client, series aggregation, UI components | Vitest + Testing Library (`npm --prefix dashboard test`) |
+

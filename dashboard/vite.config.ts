@@ -11,5 +11,12 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
+    coverage: {
+      // lcov feeds SonarQube (sonar.javascript.lcov.reportPaths in the
+      // repo-root sonar-project.properties); text is the terminal summary.
+      reporter: ['text', 'lcov'],
+      include: ['src/**'],
+      exclude: ['src/test/**'],
+    },
   },
 })

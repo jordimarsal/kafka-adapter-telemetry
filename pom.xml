@@ -26,5 +26,32 @@
 
   <properties>
     <java.version>25</java.version>
+    <jacoco.version>0.8.15</jacoco.version>
   </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>${jacoco.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <!-- report at test phase so a plain `mvn package` leaves
+               target/site/jacoco/jacoco.xml ready for SonarQube -->
+          <execution>
+            <id>jacoco-report</id>
+            <phase>test</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>
