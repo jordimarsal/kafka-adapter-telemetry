@@ -70,7 +70,7 @@ class ProcessTelemetryUseCaseTest {
         final List<AlertEvent> published = new ArrayList<>();
 
         @Override
-        public void record(AlertEvent alert) {
+        public void append(AlertEvent alert) {
             recorded.add(alert);
         }
 
@@ -145,7 +145,7 @@ class ProcessTelemetryUseCaseTest {
     }
 
     @Test
-    void threeDownsAlertExactlyOnce_fourthDownDoesNot() {
+    void threeDownsAlertExactlyOnceAndFourthDownDoesNot() {
         Fakes f = fakes();
         f.useCase().process(event(Status.DOWN, UUID.randomUUID()));
         f.useCase().process(event(Status.DOWN, UUID.randomUUID()));

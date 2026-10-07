@@ -35,13 +35,17 @@ export function countEvent(series: Series, nowMs: number): Series {
 function foldIntoBucket(series: Series, nowMs: number, sample: number | null): Series {
   const second = Math.floor(nowMs / BUCKET_MS)
   const last = series.buckets.at(-1)
-  const previous = last && last.second === second ? last : undefined
-  const samples = sample === null
-    ? previous?.samples ?? []
-    : previous && previous.samples.length < SAMPLE_CAP ? [...previous.samples, sample] : previous ? previous.samples : [sample]
+  const previous = last?.second === second ? last : undefined
+  const samples = nextSamples(previous, sample)
   const bucket: Bucket = { second, count: (previous?.count ?? 0) + 1, samples }
   const buckets = previous ? [...series.buckets.slice(0, -1), bucket] : [...series.buckets, bucket]
   return { resets: series.resets, buckets: buckets.slice(-MAX_BUCKETS) }
+}
+
+function nextSamples(previous: Bucket | undefined, sample: number | null): number[] {
+  if (sample === null) return previous?.samples ?? []
+  if (!previous) return [sample]
+  return previous.samples.length < SAMPLE_CAP ? [...previous.samples, sample] : previous.samples
 }
 
 export function markReset(series: Series, nowMs: number): Series {

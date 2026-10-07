@@ -50,7 +50,7 @@ const initialState: DashboardState = {
 
 export class DashboardStore {
   private state: DashboardState = initialState
-  private listeners = new Set<() => void>()
+  private readonly listeners = new Set<() => void>()
   private pending: number | null = null
 
   subscribe = (listener: () => void): (() => void) => {

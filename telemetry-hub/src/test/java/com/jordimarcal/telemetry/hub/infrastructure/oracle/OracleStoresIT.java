@@ -105,8 +105,8 @@ class OracleStoresIT {
     void alertRecordingToleratesReplays() {
         UUID trigger = UUID.randomUUID();
         AlertEvent alert = AlertEvent.forTrigger(trigger, new AdapterId("it-adapter-2"), "3 DOWN", Instant.now());
-        alertStore.record(alert);
-        alertStore.record(alert);
+        alertStore.append(alert);
+        alertStore.append(alert);
         Integer rows = jdbc.queryForObject(
                 "SELECT COUNT(*) FROM adapter_alert WHERE alert_id = ?",
                 Integer.class, OracleTelemetryStore.uuidBytes(alert.alertId()));
@@ -117,7 +117,7 @@ class OracleStoresIT {
     void alertStoresTheTriggerEventId() {
         UUID trigger = UUID.randomUUID();
         AlertEvent alert = AlertEvent.forTrigger(trigger, new AdapterId("it-adapter-3"), "3 DOWN", Instant.now());
-        alertStore.record(alert);
+        alertStore.append(alert);
         byte[] stored = jdbc.queryForObject(
                 "SELECT trigger_event_id FROM adapter_alert WHERE alert_id = ?",
                 byte[].class, OracleTelemetryStore.uuidBytes(alert.alertId()));
@@ -128,7 +128,7 @@ class OracleStoresIT {
     @Test
     void triggerEventIdIsUniqueAcrossAlerts() {
         UUID trigger = UUID.randomUUID();
-        alertStore.record(AlertEvent.forTrigger(trigger, new AdapterId("it-adapter-4"), "3 DOWN", Instant.now()));
+        alertStore.append(AlertEvent.forTrigger(trigger, new AdapterId("it-adapter-4"), "3 DOWN", Instant.now()));
         assertThrows(DataIntegrityViolationException.class, () -> jdbc.update(
                 "INSERT INTO adapter_alert (alert_id, adapter_id, reason, raised_at, trigger_event_id) "
                         + "VALUES (?, ?, ?, SYSTIMESTAMP, ?)",
@@ -142,7 +142,7 @@ class OracleStoresIT {
         AdapterId id = new AdapterId("it-adapter-1");
         var event = event(Status.UP, UUID.randomUUID());
         assertTrue(telemetryStore.append(event).isOk());
-        alertStore.record(AlertEvent.forTrigger(UUID.randomUUID(), id, "3 DOWN", Instant.now()));
+        alertStore.append(AlertEvent.forTrigger(UUID.randomUUID(), id, "3 DOWN", Instant.now()));
         healthRepository.save(healthRepository.find(id)
                 .observe(event(Status.DOWN, UUID.randomUUID(), Instant.now())).next());
 

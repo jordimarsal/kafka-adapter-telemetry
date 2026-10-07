@@ -8,7 +8,7 @@ import com.jordimarcal.telemetry.contracts.AlertEvent;
  */
 public interface AlertStore {
 
-    void record(AlertEvent alert);
+    void append(AlertEvent alert);
 
     /**
      * Demo-reset only: wipes the alert history so a new demo run raises its

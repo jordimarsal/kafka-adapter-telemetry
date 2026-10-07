@@ -8,6 +8,13 @@ const FLOW: { label: string; hint: string }[] = [
   { label: 'ORACLE', hint: 'TELEMETRY_EVENT' },
 ]
 
+function nodeValue(index: number, session: number, seq: number, alerts: number): string {
+  if (index === 0) return `${session} ev`
+  if (index === 2) return `seq ${seq}`
+  if (index === 3) return `${alerts} alerts`
+  return ''
+}
+
 export function PipelineFlow() {
   const session = useDashboard(state => state.sessionEvents)
   const seq = useDashboard(state => state.seq)
@@ -23,9 +30,7 @@ export function PipelineFlow() {
               <line x1="0" y1="4" x2="120" y2="4" stroke="#1c2530" strokeWidth="2" />
               <line x1="0" y1="4" x2="120" y2="4" stroke="#3ddc97" strokeWidth="2" strokeDasharray="6 14" className="flow-line" />
             </svg>
-            <span className="w-20 shrink-0 text-right text-fg">
-              {index === 0 ? `${session} ev` : index === 2 ? `seq ${seq}` : index === 3 ? `${alerts} alerts` : ''}
-            </span>
+            <span className="w-20 shrink-0 text-right text-fg">{nodeValue(index, session, seq, alerts)}</span>
           </div>
         ))}
       </div>

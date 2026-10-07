@@ -24,6 +24,13 @@ public final class InMemoryTelemetryMetrics implements TelemetryTap {
     }
 
     public sealed interface Frame {
+
+        /**
+         * Monotonic sequence of the frame: every frame kind carries it, so
+         * clients can order and detect gaps without knowing the concrete kind.
+         */
+        long seq();
+
         record TelemetryFrame(long seq, UUID eventId, String adapterId, String status,
                 int latencyMs, String country, Instant occurredAt) implements Frame {
         }

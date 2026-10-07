@@ -29,7 +29,7 @@ class DltObserverTest {
 
     @Test
     void deserializationFailuresAreReportedAsMalformedJson() {
-        observe(record("{\"eventId\": \"not-json", headers(
+        observe(deadLetter("{\"eventId\": \"not-json", headers(
                 KafkaHeaders.DLT_EXCEPTION_FQCN, "org.springframework.kafka.support.serializer.DeserializationException",
                 KafkaHeaders.DLT_EXCEPTION_MESSAGE, "failed to deserialize")));
         assertEquals(List.of("malformed JSON"), reasons);
@@ -37,7 +37,7 @@ class DltObserverTest {
 
     @Test
     void otherFailuresCarryTheExceptionNameAndMessage() {
-        observe(record("{}", headers(
+        observe(deadLetter("{}", headers(
                 KafkaHeaders.DLT_EXCEPTION_FQCN, "org.springframework.kafka.listener.ListenerExecutionFailedException",
                 KafkaHeaders.DLT_EXCEPTION_MESSAGE, "unknown adapter profile")));
         assertEquals(List.of("ListenerExecutionFailedException: unknown adapter profile"), reasons);
@@ -45,7 +45,7 @@ class DltObserverTest {
 
     @Test
     void failuresWithoutAMessageFallBackToTheExceptionName() {
-        observe(record("{}", headers(
+        observe(deadLetter("{}", headers(
                 KafkaHeaders.DLT_EXCEPTION_FQCN, "org.springframework.kafka.KafkaException",
                 KafkaHeaders.DLT_EXCEPTION_MESSAGE, "  ")));
         assertEquals(List.of("KafkaException"), reasons);
@@ -54,7 +54,7 @@ class DltObserverTest {
     @Test
     void longMessagesAreTruncated() {
         String longMessage = "boom ".repeat(40);
-        observe(record("{}", headers(
+        observe(deadLetter("{}", headers(
                 KafkaHeaders.DLT_EXCEPTION_FQCN, "org.springframework.kafka.KafkaException",
                 KafkaHeaders.DLT_EXCEPTION_MESSAGE, longMessage)));
         assertEquals(1, reasons.size());
@@ -63,21 +63,21 @@ class DltObserverTest {
 
     @Test
     void recordsWithoutDltHeadersFallBackToAGenericLabel() {
-        observe(record("{\"eventId\": \"not-json", new RecordHeaders()));
+        observe(deadLetter("{\"eventId\": \"not-json", new RecordHeaders()));
         assertEquals(List.of("unprocessable record"), reasons);
     }
 
     @Test
     void blankRecordsWithoutHeadersAreReportedAsEmpty() {
-        observe(record(null, new RecordHeaders()));
+        observe(deadLetter(null, new RecordHeaders()));
         assertEquals(List.of("empty record"), reasons);
     }
 
-    private void observe(ConsumerRecord<String, String> record) {
-        observer.observe(record);
+    private void observe(ConsumerRecord<String, String> dead) {
+        observer.observe(dead);
     }
 
-    private static ConsumerRecord<String, String> record(String value, Headers headers) {
+    private static ConsumerRecord<String, String> deadLetter(String value, Headers headers) {
         return new ConsumerRecord<>("adapter.telemetry.v1.dlt", 0, 0L, 0L, TimestampType.CREATE_TIME,
                 -1, -1, "gw-1", value, headers, Optional.empty());
     }

@@ -37,7 +37,7 @@ public class KafkaConsumerConfig {
         return new DefaultErrorHandler(
                 new DeadLetterPublishingRecoverer(
                         dltTemplate(bootstrapServers),
-                        (record, ex) -> new TopicPartition(TopicNames.TELEMETRY_DLT, 0)),
+                        (failed, _) -> new TopicPartition(TopicNames.TELEMETRY_DLT, 0)),
                 new FixedBackOff(500, 2));
     }
 
@@ -54,7 +54,7 @@ public class KafkaConsumerConfig {
         factory.setConsumerFactory(new DefaultKafkaConsumerFactory<>(props));
         // no DeadLetterPublishingRecoverer here: an observer that republishes to its own topic loops forever
         factory.setCommonErrorHandler(new DefaultErrorHandler(
-                (record, _) -> log.warn("dlt observer gave up on key={}", record.key()),
+                (failed, _) -> log.warn("dlt observer gave up on key={}", failed.key()),
                 new FixedBackOff(500, 2)));
         return factory;
     }

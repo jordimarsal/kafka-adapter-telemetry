@@ -96,9 +96,9 @@ class TelemetryListenerIT {
             broker.consumeFromAnEmbeddedTopic(reader, TopicNames.TELEMETRY_DLT);
             var found = new AtomicReference<ConsumerRecord<String, byte[]>>();
             Awaitility.await().atMost(TIMEOUT).untilAsserted(() -> {
-                reader.poll(Duration.ofMillis(200)).forEach(record -> {
-                    if (key.equals(record.key())) {
-                        found.set(record);
+                reader.poll(Duration.ofMillis(200)).forEach(dead -> {
+                    if (key.equals(dead.key())) {
+                        found.set(dead);
                     }
                 });
                 assertNotNull(found.get(), "poisoned record must reach the DLT");
@@ -125,9 +125,9 @@ class TelemetryListenerIT {
 
         try (Consumer<String, String> reader = alertsReader()) {
             broker.consumeFromAnEmbeddedTopic(reader, TopicNames.ALERTS);
-            var record = KafkaTestUtils.getSingleRecord(reader, TopicNames.ALERTS, TIMEOUT);
-            assertEquals("it-alert-adapter", record.key());
-            AlertEvent alert = json.readValue(record.value(), AlertEvent.class);
+            var alertRecord = KafkaTestUtils.getSingleRecord(reader, TopicNames.ALERTS, TIMEOUT);
+            assertEquals("it-alert-adapter", alertRecord.key());
+            AlertEvent alert = json.readValue(alertRecord.value(), AlertEvent.class);
             assertEquals("it-alert-adapter", alert.adapterId().value());
             assertTrue(alert.reason().contains("DOWN"), "reason must mention the DOWN streak");
         }
@@ -245,7 +245,7 @@ class TelemetryListenerIT {
         private final List<AlertEvent> recorded = new CopyOnWriteArrayList<>();
 
         @Override
-        public void record(AlertEvent alert) {
+        public void append(AlertEvent alert) {
             recorded.add(alert);
         }
 

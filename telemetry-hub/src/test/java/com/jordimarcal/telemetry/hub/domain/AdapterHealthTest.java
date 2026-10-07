@@ -30,7 +30,7 @@ class AdapterHealthTest {
     }
 
     @Test
-    void twoDownsRaiseNoAlert_thirdDownRaisesExactlyOne() {
+    void twoDownsRaiseNoAlertAndThirdDownRaisesExactlyOne() {
         var health = AdapterHealth.initial(GW, T0);
         UUID trigger = UUID.randomUUID();
 

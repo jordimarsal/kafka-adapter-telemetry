@@ -12,7 +12,7 @@ GATEWAY_JAR="$REPO_ROOT/adapter-gateway/target/adapter-gateway-0.1.0-SNAPSHOT.ja
 HUB_JAR="$REPO_ROOT/telemetry-hub/target/telemetry-hub-0.1.0-SNAPSHOT.jar"
 KAFKA_CONTAINER="telemetry-kafka"
 ORACLE_CONTAINER="telemetry-oracle"
-SQLPLUS="sqlplus -s telemetry/telemetry@//localhost:1521/telemetry"
+SQLPLUS=(sqlplus -s telemetry/telemetry@//localhost:1521/telemetry)
 GATEWAY_URL="http://localhost:8081"
 HUB_URL="http://localhost:8082"
 
@@ -32,8 +32,8 @@ container_healthy() {
 }
 
 wait_container() {
-  local name="$1" i
-  for i in $(seq 1 60); do
+  local name="$1"
+  for _ in $(seq 1 60); do
     container_healthy "$name" && return 0
     sleep 2
   done
@@ -42,8 +42,8 @@ wait_container() {
 }
 
 wait_http() {
-  local url="$1" name="$2" i
-  for i in $(seq 1 60); do
+  local url="$1" name="$2"
+  for _ in $(seq 1 60); do
     if curl -sf "$url" > /dev/null 2>&1; then
       echo "$name is UP"
       return 0
@@ -55,7 +55,7 @@ wait_http() {
 }
 
 sql_count() {
-  docker exec -i "$ORACLE_CONTAINER" $SQLPLUS <<SQL | awk 'NF {print $1; exit}'
+  docker exec -i "$ORACLE_CONTAINER" "${SQLPLUS[@]}" <<SQL | awk 'NF {print $1; exit}'
 SET HEADING OFF
 SET FEEDBACK OFF
 SET PAGESIZE 0

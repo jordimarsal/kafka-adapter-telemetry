@@ -25,15 +25,7 @@ class InMemoryTelemetryMetricsTest {
     void seqIsMonotonicAcrossAllFrameKinds() {
         var metrics = new InMemoryTelemetryMetrics();
         List<Long> seqs = new ArrayList<>();
-        metrics.addListener(frame -> {
-            switch (frame) {
-                case InMemoryTelemetryMetrics.Frame.TelemetryFrame(var seq, _, _, _, _, _, _) -> seqs.add(seq);
-                case InMemoryTelemetryMetrics.Frame.DuplicateFrame(var seq, _, _) -> seqs.add(seq);
-                case InMemoryTelemetryMetrics.Frame.AlertFrame(var seq, _, _, _, _, _) -> seqs.add(seq);
-                case InMemoryTelemetryMetrics.Frame.DltFrame(var seq, _) -> seqs.add(seq);
-                case InMemoryTelemetryMetrics.Frame.HeartbeatFrame(var seq, _) -> seqs.add(seq);
-            }
-        });
+        metrics.addListener(frame -> seqs.add(frame.seq()));
 
         metrics.onProcessed(event(Status.UP));
         metrics.onDuplicate(event(Status.DOWN));

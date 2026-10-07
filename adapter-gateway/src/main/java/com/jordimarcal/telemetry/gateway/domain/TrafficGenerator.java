@@ -74,11 +74,15 @@ public final class TrafficGenerator {
         return Kind.NEW;
     }
 
+    private Status statusFor(double draw) {
+        if (draw < profile.downRatio()) {
+            return Status.DOWN;
+        }
+        return draw < profile.downRatio() + profile.degradedRatio() ? Status.DEGRADED : Status.UP;
+    }
+
     private TelemetryEvent newEvent(SplittableRandom rng, Instant at) {
-        double draw = rng.nextDouble();
-        Status status = draw < profile.downRatio()
-                ? Status.DOWN
-                : draw < profile.downRatio() + profile.degradedRatio() ? Status.DEGRADED : Status.UP;
+        Status status = statusFor(rng.nextDouble());
         int latency = switch (status) {
             case UP -> 20 + rng.nextInt(281);
             case DEGRADED -> 800 + rng.nextInt(1_201);

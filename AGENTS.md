@@ -129,8 +129,8 @@ tells the aggregate what happened, persists `effect.next()`, and publishes
 ## TDD: how we test
 
 Red → green → refactor. No production code without a failing test first. Test
-names are descriptive camelCase sentences, no `@DisplayName` needed
-(e.g. `twoDownsRaiseNoAlert_thirdDownRaisesExactlyOne`). Levels:
+names are descriptive camelCase sentences, no `@DisplayName` and no underscores
+(underscore breaks Sonar `java:S100`; e.g. `twoDownsRaiseNoAlertAndThirdDownRaisesExactlyOne`). Levels:
 
 | Level              | What                                                           | Tooling |
 |--------------------|----------------------------------------------------------------|---------|

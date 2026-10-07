@@ -26,7 +26,7 @@ public class OracleAlertStore implements AlertStore {
     }
 
     @Override
-    public void record(AlertEvent alert) {
+    public void append(AlertEvent alert) {
         try {
             jdbc.update(INSERT, OracleTelemetryStore.uuidBytes(alert.alertId()), alert.adapterId().value(),
                     alert.reason(), Timestamp.from(alert.raisedAt()),

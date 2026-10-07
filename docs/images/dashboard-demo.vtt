@@ -1,0 +1,13 @@
+WEBVTT
+
+00:00.000 --> 00:08.000
+Mission-control dashboard: adapters stream live status and totals.
+
+00:08.000 --> 00:16.000
+Throughput and latency charts update as telemetry flows through the pipeline.
+
+00:16.000 --> 00:24.000
+The alert feed records the alert raised by a streak of DOWN observations.
+
+00:24.000 --> 00:32.000
+Integrity counters stay flat while duplicates are dropped idempotently.

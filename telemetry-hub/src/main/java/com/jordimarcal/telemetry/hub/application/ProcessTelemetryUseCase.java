@@ -40,7 +40,10 @@ public final class ProcessTelemetryUseCase {
                 tap.onDuplicate(event);
                 return;
             }
-            case Result.Ok(var ignored) -> { }
+            case Result.Ok(_) -> {
+                // append ok: the duplicate branch above already handled the
+                // only early exit; keep going with the health update.
+            }
         }
 
         AdapterHealth current = healthRepository.find(event.adapterId());
@@ -51,7 +54,7 @@ public final class ProcessTelemetryUseCase {
                 event.adapterId(), event.status(), effect.next().consecutiveDown());
 
         effect.alertToPublish().ifPresent(alert -> {
-            alertStore.record(alert);
+            alertStore.append(alert);
             alertPublisher.publish(alert);
             tap.onAlert(alert);
             log.warn("alert raised adapter={} reason={}", alert.adapterId(), alert.reason());

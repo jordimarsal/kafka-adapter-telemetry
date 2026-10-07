@@ -31,27 +31,27 @@ public class DltObserver {
 
     @KafkaListener(id = "dlt-observer", topics = TopicNames.TELEMETRY_DLT,
             containerFactory = "dltListenerContainerFactory")
-    public void observe(ConsumerRecord<String, String> record) {
-        log.debug("dlt message key={}", record.key());
-        metrics.onDlt(reasonFor(record));
+    public void observe(ConsumerRecord<String, String> dead) {
+        log.debug("dlt message key={}", dead.key());
+        metrics.onDlt(reasonFor(dead));
     }
 
-    private static String reasonFor(ConsumerRecord<String, String> record) {
-        String fqcn = header(record, KafkaHeaders.DLT_EXCEPTION_FQCN);
+    private static String reasonFor(ConsumerRecord<String, String> dead) {
+        String fqcn = header(dead, KafkaHeaders.DLT_EXCEPTION_FQCN);
         if (fqcn != null) {
             String simpleName = fqcn.substring(fqcn.lastIndexOf('.') + 1);
             if (DESERIALIZATION_EXCEPTION.equals(simpleName)) {
                 return "malformed JSON";
             }
-            String message = header(record, KafkaHeaders.DLT_EXCEPTION_MESSAGE);
+            String message = header(dead, KafkaHeaders.DLT_EXCEPTION_MESSAGE);
             return message == null || message.isBlank() ? simpleName : truncate(simpleName + ": " + message);
         }
-        String value = record.value();
+        String value = dead.value();
         return value == null || value.isBlank() ? "empty record" : "unprocessable record";
     }
 
-    private static String header(ConsumerRecord<String, String> record, String name) {
-        Header header = record.headers().lastHeader(name);
+    private static String header(ConsumerRecord<String, String> dead, String name) {
+        Header header = dead.headers().lastHeader(name);
         return header == null ? null : new String(header.value(), StandardCharsets.UTF_8);
     }
 
