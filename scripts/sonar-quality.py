@@ -199,7 +199,10 @@ python3 scripts/sonar-quality.py</pre>
   <a class="back" href="../index.html">← Diagrams</a>
   <a class="back" href="https://github.com/jordimarsal/kafka-adapter-telemetry/blob/main/README.md">README</a>
   <p><small>Rendered from the scan of {html.escape(report["generatedAt"])} by the internal SonarQube
-  (LAN-only dashboard). Page, badges and JSON are regenerated after each scan.</small></p>
+  (LAN-only dashboard). Page, badges and JSON are regenerated after each scan.<br>
+  The overall coverage is SonarQube's own weighting across all analyzed sources; the per-module
+  rows above are the raw JaCoCo and vitest reports. The hub module sits lower because the Oracle
+  Testcontainers suite (<code>OracleStoresIT</code>) is excluded from the default build.</small></p>
 </body>
 </html>
 """
@@ -209,14 +212,10 @@ def write_badges(out_dir: Path, report: dict) -> list[Path]:
     m = report["measures"]
     gate_ok = report["qualityGate"].get("status") == "OK"
     pct = m.get("coverage")
-    dup = m.get("duplicated_lines_density")
     specs = {
         "quality-gate": ("quality gate", "passing" if gate_ok else "failing", BRIGHT_GREEN if gate_ok else RED),
         "coverage": ("coverage", f"{pct:.1f}%" if pct is not None else "n/a", coverage_color(pct) if pct is not None else GRAY),
         "code-smells": ("code smells", str(m.get("code_smells", "n/a")), BRIGHT_GREEN if m.get("code_smells") == 0 else ORANGE),
-        "duplication": ("duplication", f"{dup:.1f}%" if dup is not None else "n/a", coverage_color(100 - dup) if dup is not None else GRAY),
-        "reliability": ("reliability", rating_letter(m.get("reliability_rating")), rating_color(rating_letter(m.get("reliability_rating")))),
-        "security": ("security", rating_letter(m.get("security_rating")), rating_color(rating_letter(m.get("security_rating")))),
     }
     written = []
     for name, (label, value, color) in specs.items():

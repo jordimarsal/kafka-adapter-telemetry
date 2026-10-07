@@ -4,9 +4,6 @@
 [![Quality Gate](docs/images/badge-quality-gate.svg)](https://jordimarsal.github.io/kafka-adapter-telemetry/quality/)
 [![Coverage](docs/images/badge-coverage.svg)](https://jordimarsal.github.io/kafka-adapter-telemetry/quality/)
 [![Code Smells](docs/images/badge-code-smells.svg)](https://jordimarsal.github.io/kafka-adapter-telemetry/quality/)
-[![Duplication](docs/images/badge-duplication.svg)](https://jordimarsal.github.io/kafka-adapter-telemetry/quality/)
-[![Reliability](docs/images/badge-reliability.svg)](https://jordimarsal.github.io/kafka-adapter-telemetry/quality/)
-[![Security](docs/images/badge-security.svg)](https://jordimarsal.github.io/kafka-adapter-telemetry/quality/)
 
 Adapter telemetry pipeline built for demonstration and interview walkthroughs: a
 Kafka-producing **adapter-gateway** with a seeded traffic simulator, and a
