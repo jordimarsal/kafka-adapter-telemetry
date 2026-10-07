@@ -1,0 +1,79 @@
+{
+ "generatedAt": "2026-10-07T10:30:51+00:00",
+ "server": "https://sonar.viatgecio.test",
+ "project": {
+  "key": "jordimarsal:kafka-adapter-telemetry",
+  "name": "jordimarsal:kafka-adapter-telemetry",
+  "dashboard": "https://sonar.viatgecio.test/dashboard?id=jordimarsal%3Akafka-adapter-telemetry"
+ },
+ "qualityGate": {
+  "name": "Viatgecio Way",
+  "error": null,
+  "status": "OK",
+  "ignoredConditions": false,
+  "period": {
+   "mode": "PREVIOUS_VERSION",
+   "date": "2026-10-07T08:13:54+0000"
+  },
+  "caycStatus": "non-compliant",
+  "conditions": [
+   {
+    "metric": "new_duplicated_lines_density",
+    "comparator": "GT",
+    "threshold": "3",
+    "actual": "0.0",
+    "status": "OK"
+   },
+   {
+    "metric": "new_violations",
+    "comparator": "GT",
+    "threshold": "0",
+    "actual": "0",
+    "status": "OK"
+   }
+  ]
+ },
+ "measures": {
+  "complexity": 382,
+  "duplicated_lines_density": 1.0,
+  "duplicated_lines": 34,
+  "functions": 253,
+  "new_vulnerabilities": 0,
+  "classes": 67,
+  "new_coverage": 93.4,
+  "statements": 729,
+  "sqale_index": 0,
+  "sqale_rating": 1.0,
+  "bugs": 0,
+  "new_violations": 0,
+  "ncloc": 2581,
+  "new_maintainability_rating": 1.0,
+  "coverage": 81.9,
+  "reliability_rating": 1.0,
+  "code_smells": 0,
+  "security_rating": 1.0,
+  "violations": 0,
+  "comment_lines_density": 5.1,
+  "security_hotspots": 0,
+  "new_bugs": 0,
+  "new_code_smells": 0,
+  "new_security_hotspots": 0,
+  "comment_lines": 140,
+  "cognitive_complexity": 129,
+  "files": 80,
+  "vulnerabilities": 0,
+  "new_duplicated_lines_density": 0.0
+ },
+ "measuresError": null,
+ "issues": {
+  "total": 0,
+  "returned": 0,
+  "items": []
+ },
+ "issuesError": null,
+ "securityHotspots": {
+  "total": 0,
+  "items": []
+ },
+ "securityHotspotsError": null
+}

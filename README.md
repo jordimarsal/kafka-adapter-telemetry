@@ -1,6 +1,12 @@
 # kafka-adapter-telemetry
 
 [![CI](https://github.com/jordimarsal/kafka-adapter-telemetry/actions/workflows/ci.yml/badge.svg)](https://github.com/jordimarsal/kafka-adapter-telemetry/actions/workflows/ci.yml)
+[![Quality Gate](docs/images/badge-quality-gate.svg)](https://jordimarsal.github.io/kafka-adapter-telemetry/quality/)
+[![Coverage](docs/images/badge-coverage.svg)](https://jordimarsal.github.io/kafka-adapter-telemetry/quality/)
+[![Code Smells](docs/images/badge-code-smells.svg)](https://jordimarsal.github.io/kafka-adapter-telemetry/quality/)
+[![Duplication](docs/images/badge-duplication.svg)](https://jordimarsal.github.io/kafka-adapter-telemetry/quality/)
+[![Reliability](docs/images/badge-reliability.svg)](https://jordimarsal.github.io/kafka-adapter-telemetry/quality/)
+[![Security](docs/images/badge-security.svg)](https://jordimarsal.github.io/kafka-adapter-telemetry/quality/)
 
 Adapter telemetry pipeline built for demonstration and interview walkthroughs: a
 Kafka-producing **adapter-gateway** with a seeded traffic simulator, and a
@@ -16,6 +22,20 @@ raises alerts. Java 25, Spring Boot 4.1, hexagonal architecture per service.
   `AlertEvent`, value objects and the sealed `Result` type.
 - **dashboard** (`dashboard/`, served at `:8082/`) — Vite + React single-page
   mission-control UI: live SSE stream, client-side aggregation and demo controls.
+
+## Quality
+
+Analyzed with SonarQube behind a custom quality gate ("Viatgecio Way"):
+0 issues, 81.9% coverage, 1.0% duplication, A/A/A ratings. The badges above are
+static SVGs rendered from the latest scan report — the Sonar server itself is
+LAN-only, so dynamic badges would not resolve outside the homelab. The full
+[quality page](https://jordimarsal.github.io/kafka-adapter-telemetry/quality/)
+(published on GitHub Pages) shows the metrics, per-module coverage and the raw
+`kafka-report.json`. After each scan, refresh the published assets with:
+
+```bash
+python3 scripts/sonar-quality.py   # reads ../kafka-report.json, renders page + badges
+```
 
 ## Architecture
 
