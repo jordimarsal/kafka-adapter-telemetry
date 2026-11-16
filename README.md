@@ -180,6 +180,7 @@ Unknown profile → `400` with the list of valid ones.
 - [ADR-0003 — alert dual-write vs transactional outbox](docs/adr/0003-alert-dual-write-vs-outbox.md)
 - [ADR-0004 — dashboard toolchain and the SSE tap](docs/adr/0004-dashboard-toolchain-and-sse-tap.md)
 - [ADR-0005 — JaCoCo for test coverage](docs/adr/0005-jacoco-coverage.md)
+- [ADR-0006 — Apache Flink for windowed analytics: evaluated, not adopted](docs/adr/0006-flink-for-windowed-analytics.md)
 
 ## Testing
 
